@@ -40,7 +40,7 @@ return {
       '===================================',
     }
     dashboard.section.buttons.val = {
-      dashboard.button('e', ' > Explore Directory', '<cmd>NvimTreeToggle<CR>'),
+      dashboard.button('e', ' > Explore Directory', '<cmd>Neotree toggle=true position=right<CR>'),
       dashboard.button('f', '󰱼 > Find File', '<cmd>Telescope find_files<CR>'),
       dashboard.button('w', ' > Find Word', '<cmd>Telescope live_grep<CR>'),
       dashboard.button('q', ' > Quit NVIM', '<cmd>qa<CR>'),
