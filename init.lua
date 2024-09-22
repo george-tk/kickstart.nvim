@@ -158,7 +158,7 @@ vim.opt.cursorline = true
 vim.opt.scrolloff = 10
 
 vim.opt.termguicolors = true
-
+vim.o.pumheight = 10
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -757,9 +757,7 @@ require('lazy').setup({
       local cmp = require 'cmp'
       local luasnip = require 'luasnip'
       local lspkind = require 'lspkind'
-      lspkind.init {}
-      luasnip.config.setup {}
-
+      require('luasnip.loaders.from_vscode').lazy_load()
       cmp.setup {
         snippet = {
           expand = function(args)
@@ -831,6 +829,7 @@ require('lazy').setup({
           { name = 'buffer' },
           { name = 'path' },
         },
+        formatting = { format = lspkind.cmp_format { mode = 'symbol', menu = {}, maxwidth = 15, ellipsis_char = '...' } },
       }
     end,
   },
