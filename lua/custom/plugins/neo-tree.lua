@@ -11,7 +11,7 @@ return {
     {
       '<leader>e',
       function()
-        require('neo-tree.command').execute { position = 'right', toggle = true }
+        require('neo-tree.command').execute { position = 'float', toggle = true }
       end,
       desc = 'Explorer NeoTree (Root Dir)',
     },
@@ -28,8 +28,8 @@ return {
       },
       window = {
         mappings = {
-          ['l'] = 'close_node',
-          ['h'] = 'open',
+          ['h'] = 'close_node',
+          ['l'] = 'open',
           ['Y'] = {
             function(state)
               local node = state.tree:get_node()
@@ -39,6 +39,17 @@ return {
             desc = 'Copy Path to Clipboard',
           },
         },
+      },
+    },
+    event_handlers = {
+      {
+        event = 'file_open_requested',
+        handler = function()
+          -- auto close
+          -- vim.cmd("Neotree close")
+          -- OR
+          require('neo-tree.command').execute { action = 'close' }
+        end,
       },
     },
   },
