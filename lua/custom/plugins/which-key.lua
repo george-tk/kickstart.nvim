@@ -49,6 +49,8 @@ return { -- Useful plugin to show you pending keybinds.
       { '<leader>w', group = '[W]orkspace' },
       { '<leader>t', group = '[T]erminal' },
       { '<leader>g', group = '[G]it', mode = { 'n', 'v' } },
+      { '<leader>e', group = '[E]xplore', mode = { 'n', 'v' } },
+      { '<leader>z', group = '[Z]en mode', mode = { 'n', 'v' } },
     },
   },
 }

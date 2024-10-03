@@ -9,26 +9,36 @@ return {
   cmd = 'Neotree',
   keys = {
     {
-      '<leader>e',
+      '<leader>ef',
       function()
         require('neo-tree.command').execute { position = 'float', toggle = true }
       end,
-      desc = 'Explorer NeoTree (Root Dir)',
+      desc = '[E]xplore [F]iles',
+    },
+
+    {
+      '<leader>ed',
+      function()
+        require('neo-tree.command').execute { position = 'float', toggle = true, source = 'document_symbols' }
+      end,
+      desc = '[E]xplore [D]ocument',
     },
   },
   opts = {
+    sources = { 'filesystem', 'document_symbols' },
+    filtered_items = {
+      visible = true,
+    },
+    follow_current_file = {
+      enabled = true, -- This will find and focus the file in the active buffer every time
+      --               -- the current file is changed while the tree is open.
+      leave_dirs_open = false, -- `false` closes auto expanded dirs, such as with `:Neotree reveal`
+    },
     filesystem = {
-      filtered_items = {
-        visible = true,
-      },
-      follow_current_file = {
-        enabled = true, -- This will find and focus the file in the active buffer every time
-        --               -- the current file is changed while the tree is open.
-        leave_dirs_open = false, -- `false` closes auto expanded dirs, such as with `:Neotree reveal`
-      },
       window = {
         mappings = {
-          ['h'] = 'close_node',
+          -- ['h'] = 'close_node',
+          --['l'] = 'open',
           ['l'] = 'open',
           ['Y'] = {
             function(state)
@@ -38,6 +48,13 @@ return {
             end,
             desc = 'Copy Path to Clipboard',
           },
+        },
+      },
+    },
+    document_symbols = {
+      window = {
+        mappings = {
+          ['l'] = 'toggle_node',
         },
       },
     },
