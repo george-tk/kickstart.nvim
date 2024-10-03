@@ -63,7 +63,7 @@ return { -- Autocompletion
             end
           end,
           s = cmp.mapping.confirm { select = true },
-          c = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = true },
+          c = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false },
         },
 
         ['<Tab>'] = cmp.mapping(function(fallback)
@@ -85,6 +85,7 @@ return { -- Autocompletion
             fallback()
           end
         end, { 'i', 's' }),
+        -- Scroll the documentation window [b]ack / [f]orward
         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
         ['<C-f>'] = cmp.mapping.scroll_docs(4),
         -- ... Your other mappings ...
