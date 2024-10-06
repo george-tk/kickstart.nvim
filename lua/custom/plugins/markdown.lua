@@ -13,47 +13,47 @@ return {
     -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
   },
-  { 'jghauser/follow-md-links.nvim', ft = {
-    'markdown',
-    'text',
-    'tex',
-    'plaintex',
-    'norg',
-  } },
   {
-    'gaoDean/autolist.nvim',
-    ft = {
-      'markdown',
-      'text',
-      'tex',
-      'plaintex',
-      'norg',
+    'jakewvincent/mkdnflow.nvim',
+    ft = { 'markdown', 'text', 'tex', 'plaintex', 'norg' },
+    opts = {
+      mappings = {
+        MkdnEnter = { { 'n', 'v', 'i' }, '<CR>', { buffer = true } },
+        MkdnTab = false,
+        MkdnSTab = false,
+        MkdnNextLink = { 'n', '<Tab>', { buffer = true } },
+        MkdnPrevLink = { 'n', '<S-Tab>', { buffer = true } },
+        MkdnNextHeading = { 'n', ']]' },
+        MkdnPrevHeading = { 'n', '[[' },
+        MkdnGoBack = { 'n', '<BS>', { buffer = true } },
+        MkdnGoForward = { 'n', '<Del>', { buffer = true } },
+        MkdnCreateLink = false, -- see MkdnEnter
+        MkdnCreateLinkFromClipboard = { { 'n', 'v' }, '<leader>mp', { buffer = true } }, -- see MkdnEnter
+        MkdnFollowLink = false, -- see MkdnEnter
+        MkdnDestroyLink = { 'n', '<leader>md', { buffer = true } },
+        MkdnTagSpan = false,
+        MkdnMoveSource = { 'n', '<leader>mm', { buffer = true } },
+        MkdnYankAnchorLink = false,
+        MkdnYankFileAnchorLink = false,
+        MkdnIncreaseHeading = false,
+        MkdnDecreaseHeading = false,
+        MkdnToggleToDo = { { 'n', 'v' }, '<leader>mt', { buffer = true } },
+        MkdnNewListItem = false,
+        MkdnNewListItemBelowInsert = false,
+        MkdnNewListItemAboveInsert = false,
+        MkdnExtendList = false,
+        MkdnUpdateNumbering = { 'n', '<leader>mu', { buffer = true } },
+        MkdnTableNextCell = { 'i', '<Tab>', { buffer = true } },
+        MkdnTablePrevCell = { 'i', '<S-Tab>', { buffer = true } },
+        MkdnTableNextRow = false,
+        MkdnTablePrevRow = { 'i', '<M-CR>', { buffer = true } },
+        MkdnTableNewRowBelow = { 'n', '<leader>mr', { buffer = true } },
+        MkdnTableNewRowAbove = { 'n', '<leader>mR', { buffer = true } },
+        MkdnTableNewColAfter = { 'n', '<leader>mc', { buffer = true } },
+        MkdnTableNewColBefore = { 'n', '<leader>mC', { buffer = true } },
+        MkdnFoldSection = { 'n', '<leader>mf', { buffer = true } },
+        MkdnUnfoldSection = { 'n', '<leader>mF', { buffer = true } },
+      },
     },
-    config = function()
-      require('autolist').setup()
-
-      --vim.keymap.set('i', '<tab>', '<cmd>AutolistTab<cr>')
-      --vim.keymap.set('i', '<s-tab>', '<cmd>AutolistShiftTab<cr>')
-      -- vim.keymap.set("i", "<c-t>", "<c-t><cmd>AutolistRecalculate<cr>") -- an example of using <c-t> to indent
-      vim.keymap.set('i', '<CR>', '<CR><cmd>AutolistNewBullet<cr>', { buffer = true })
-      --vim.keymap.set('n', 'o', 'o<cmd>AutolistNewBullet<cr>')
-      --vim.keymap.set('n', 'O', 'O<cmd>AutolistNewBulletBefore<cr>')
-      --vim.keymap.set('n', '<S-CR>', '<cmd>AutolistToggleCheckbox<cr><CR>')
-      --vim.keymap.set('n', '<C-r>', '<cmd>AutolistRecalculate<cr>')
-
-      -- cycle list types with dot-repeat
-      --vim.keymap.set('n', '<leader>cn', require('autolist').cycle_next_dr, { expr = true })
-      --vim.keymap.set('n', '<leader>cp', require('autolist').cycle_prev_dr, { expr = true })
-
-      -- if you don't want dot-repeat
-      -- vim.keymap.set("n", "<leader>cn", "<cmd>AutolistCycleNext<cr>")
-      -- vim.keymap.set("n", "<leader>cp", "<cmd>AutolistCycleNext<cr>")
-
-      -- functions to recalculate list on edit
-      --vim.keymap.set('n', '>>', '>><cmd>AutolistRecalculate<cr>')
-      --vim.keymap.set('n', '<<', '<<<cmd>AutolistRecalculate<cr>')
-      vim.keymap.set('n', 'dd', 'dd<cmd>AutolistRecalculate<cr>', { buffer = true })
-      vim.keymap.set('v', 'd', 'd<cmd>AutolistRecalculate<cr>', { buffer = true })
-    end,
   },
 }

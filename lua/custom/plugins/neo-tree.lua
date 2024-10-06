@@ -11,7 +11,7 @@ return {
     {
       '<leader>ef',
       function()
-        require('neo-tree.command').execute { position = 'float', toggle = true }
+        require('neo-tree.command').execute { toggle = true }
       end,
       desc = '[E]xplore [F]iles',
     },
@@ -19,7 +19,7 @@ return {
     {
       '<leader>ed',
       function()
-        require('neo-tree.command').execute { position = 'float', toggle = true, source = 'document_symbols' }
+        require('neo-tree.command').execute { toggle = true, source = 'document_symbols' }
       end,
       desc = '[E]xplore [D]ocument',
     },
@@ -37,6 +37,7 @@ return {
         leave_dirs_open = false, -- `false` closes auto expanded dirs, such as with `:Neotree reveal`
       },
       window = {
+        position = 'right',
         mappings = {
           -- ['h'] = 'close_node',
           --['l'] = 'open',
@@ -54,6 +55,7 @@ return {
     },
     document_symbols = {
       window = {
+        position = 'right',
         mappings = {
           ['l'] = 'toggle_node',
         },

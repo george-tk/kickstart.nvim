@@ -18,7 +18,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
       end,
     },
     { 'nvim-telescope/telescope-ui-select.nvim' },
-
+    { 'princejoogie/dir-telescope.nvim' },
     -- Useful for getting pretty icons, but requires a Nerd Font.
     { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
   },
@@ -55,8 +55,10 @@ return { -- Fuzzy Finder (files, lsp, etc)
       -- },
       -- pickers = {}
       extensions = {
-        ['ui-select'] = {
-          require('telescope.themes').get_dropdown(),
+        {
+          ['ui-select'] = {
+            require('telescope.themes').get_dropdown(),
+          },
         },
       },
     }
@@ -64,22 +66,23 @@ return { -- Fuzzy Finder (files, lsp, etc)
     -- Enable Telescope extensions if they are installed
     pcall(require('telescope').load_extension, 'fzf')
     pcall(require('telescope').load_extension, 'ui-select')
+    pcall(require('telescope').load_extension, 'dir')
 
     -- See `:help telescope.builtin`
     local builtin = require 'telescope.builtin'
     vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
     vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
     vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
-    vim.keymap.set('n', '<leader>sg', builtin.git_files, { desc = '[S]earch [G]it Files' })
     vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
     vim.keymap.set('n', '<leader>scw', builtin.grep_string, { desc = '[S]earch [C]urrent [W]ord' })
     vim.keymap.set('n', '<leader>scd', builtin.lsp_definitions, { desc = '[S]earch [C]urrent [D]efinition' })
     vim.keymap.set('n', '<leader>scr', builtin.lsp_references, { desc = '[S]earch [C]urrent [R]eferences' })
     vim.keymap.set('n', '<leader>sw', builtin.live_grep, { desc = '[S]earch by [W]ord' })
-    vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
+    --vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
     vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
     vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
     vim.keymap.set('n', '<leader>bl', builtin.buffers, { desc = '[B]uffer [L]ist' })
+    vim.keymap.set('n', '<leader>Ss', builtin.spell_suggest, { desc = '[S]pell [s]uggest' })
 
     -- Slightly advanced example of overriding default behavior and theme
     vim.keymap.set('n', '<leader>sb', function()
@@ -99,9 +102,15 @@ return { -- Fuzzy Finder (files, lsp, etc)
       }
     end, { desc = '[S]earch [/] in Open Files' })
 
+    vim.keymap.set('n', '<leader>sif', function()
+      builtin.find_files { hidden = true, no_ignore = true }
+    end, { desc = '[S]earch [I]gnored [F]iles' })
     -- Shortcut for searching your Neovim configuration files
     vim.keymap.set('n', '<leader>sn', function()
       builtin.find_files { cwd = vim.fn.stdpath 'config' }
     end, { desc = '[S]earch [N]eovim files' })
+
+    vim.keymap.set('n', '<leader>sdw', '<cmd>Telescope dir live_grep<CR>', { noremap = true, silent = true })
+    vim.keymap.set('n', '<leader>sdf', '<cmd>Telescope dir find_files<CR>', { noremap = true, silent = true })
   end,
 }

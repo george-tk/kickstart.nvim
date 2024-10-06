@@ -10,7 +10,7 @@ vim.g.maplocalleader = ' '
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '<leader>eq', vim.diagnostic.setloclist, { desc = '[E]xplore [Q]uickfix list' })
+-- vim.keymap.set('n', '<leader>eq', vim.diagnostic.setloclist, { desc = '[E]xplore [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -38,6 +38,6 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- spelling
 vim.keymap.set('n', '<leader>SS', '<cmd>set spell!<CR>', { desc = '[S]et [S]pell' })
 -- Show spelling suggestions / spell suggestions
-vim.keymap.set('n', '<leader>Ss', 'z=', { desc = '[S]pelling [s]uggestions' })
+--vim.keymap.set('n', '<leader>Ss', 'z=', { desc = '[S]pelling [s]uggestions' })
 vim.keymap.set('n', '<leader>Sn', ']s', { desc = '[N]ext [S]pelling error' })
 vim.keymap.set('n', '<leader>Sp', '[s', { desc = '[P]revious [S]pelling error' })
