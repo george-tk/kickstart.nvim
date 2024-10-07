@@ -19,6 +19,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
     },
     { 'nvim-telescope/telescope-ui-select.nvim' },
     { 'princejoogie/dir-telescope.nvim' },
+    { 'PhilippFeO/telescope-filelinks.nvim', ft = 'markdown' },
     -- Useful for getting pretty icons, but requires a Nerd Font.
     { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
   },
@@ -44,15 +45,29 @@ return { -- Fuzzy Finder (files, lsp, etc)
 
     -- [[ Configure Telescope ]]
     -- See `:help telescope` and `:help telescope.setup()`
+    local actions = require 'telescope.actions'
     require('telescope').setup {
       -- You can put your default mappings / updates / etc. in here
       --  All the info you're looking for is in `:help telescope.setup()`
       --
-      -- defaults = {
-      --   mappings = {
-      --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-      --   },
-      -- },
+      defaults = {
+        mappings = {
+          i = {
+            -- ['<esc>'] = actions.close,
+            ['<Tab>'] = actions.move_selection_worse,
+
+            ['<S-Tab>'] = actions.move_selection_better,
+
+            ['<C-n>'] = false,
+
+            ['<C-p>'] = false,
+
+            ['<Down>'] = false,
+
+            ['<Up>'] = false,
+          },
+        },
+      },
       -- pickers = {}
       extensions = {
         {
@@ -67,6 +82,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
     pcall(require('telescope').load_extension, 'fzf')
     pcall(require('telescope').load_extension, 'ui-select')
     pcall(require('telescope').load_extension, 'dir')
+    pcall(require('telescope').load_extension 'filelinks')
 
     -- See `:help telescope.builtin`
     local builtin = require 'telescope.builtin'
@@ -82,7 +98,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
     vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
     vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
     vim.keymap.set('n', '<leader>bl', builtin.buffers, { desc = '[B]uffer [L]ist' })
-    vim.keymap.set('n', '<leader>Ss', builtin.spell_suggest, { desc = '[S]pell [s]uggest' })
+    -- vim.keymap.set('n', '<leader>Ss', builtin.spell_suggest, { desc = '[S]pell [s]uggest' })
 
     -- Slightly advanced example of overriding default behavior and theme
     vim.keymap.set('n', '<leader>sb', function()
@@ -92,6 +108,10 @@ return { -- Fuzzy Finder (files, lsp, etc)
         previewer = false,
       })
     end, { desc = '[Search] [B]uffer' })
+
+    vim.keymap.set('n', '<leader>Ss', function()
+      builtin.spell_suggest(require('telescope.themes').get_cursor { winblend = 10, layout_config = { width = 0.15 } })
+    end, { desc = '[S]pell [s]uggest' })
 
     -- It's also possible to pass additional configuration options.
     --  See `:help telescope.builtin.live_grep()` for information about particular keys
@@ -110,7 +130,13 @@ return { -- Fuzzy Finder (files, lsp, etc)
       builtin.find_files { cwd = vim.fn.stdpath 'config' }
     end, { desc = '[S]earch [N]eovim files' })
 
-    vim.keymap.set('n', '<leader>sdw', '<cmd>Telescope dir live_grep<CR>', { noremap = true, silent = true })
-    vim.keymap.set('n', '<leader>sdf', '<cmd>Telescope dir find_files<CR>', { noremap = true, silent = true })
+    vim.keymap.set('n', '<leader>ml', function()
+      require('telescope').extensions.filelinks.make_filelink {
+        working_dir = vim.fn.getcwd(),
+        format_string = '[%s](%s)',
+        remove_extension = false,
+        prompt_title = 'Markdown Link Finder',
+      }
+    end, { desc = '[M]arkdown [L]ink' })
   end,
 }
