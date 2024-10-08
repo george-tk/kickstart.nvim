@@ -36,8 +36,8 @@ vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower win
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- spelling
-vim.keymap.set('n', '<leader>SS', '<cmd>set spell!<CR>', { desc = '[S]et [S]pell' })
+vim.keymap.set('n', '<leader>sS', '<cmd>set spell!<CR>', { desc = '[S]et [S]pell' })
 -- Show spelling suggestions / spell suggestions
 --vim.keymap.set('n', '<leader>Ss', 'z=', { desc = '[S]pelling [s]uggestions' })
-vim.keymap.set('n', '<leader>Sn', ']s', { desc = '[N]ext [S]pelling error' })
-vim.keymap.set('n', '<leader>Sp', '[s', { desc = '[P]revious [S]pelling error' })
+vim.keymap.set('n', '<leader>sn', ']s', { desc = '[N]ext [S]pelling error' })
+vim.keymap.set('n', '<leader>sp', '[s', { desc = '[P]revious [S]pelling error' })
