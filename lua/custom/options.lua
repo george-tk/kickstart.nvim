@@ -60,6 +60,8 @@ vim.opt.scrolloff = 20
 vim.opt.termguicolors = true
 vim.o.pumheight = 10
 
+vim.opt.confirm = true
+
 vim.opt.spelllang = { 'en_gb' }
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
