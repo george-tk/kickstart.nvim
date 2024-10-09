@@ -10,9 +10,7 @@ return {
   keys = {
     {
       '<leader>ef',
-      function()
-        require('neo-tree.command').execute { toggle = true }
-      end,
+      '<cmd>Neotree float reveal toggle<CR> ',
       desc = '[E]xplore [F]iles',
     },
 
@@ -55,7 +53,7 @@ return {
     },
     document_symbols = {
       window = {
-        position = 'right',
+        position = 'float',
         mappings = {
           ['l'] = 'toggle_node',
         },
