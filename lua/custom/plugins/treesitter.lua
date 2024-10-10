@@ -1,6 +1,6 @@
 return { -- Highlight, edit, and navigate code
   'nvim-treesitter/nvim-treesitter',
-  dependencies = 'nvim-treesitter/nvim-treesitter-context',
+  dependencies = { 'nvim-treesitter/nvim-treesitter-context', opts = { multiline_threshold = 1 } },
   build = ':TSUpdate',
   main = 'nvim-treesitter.configs', -- Sets main module to use for opts
   -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
@@ -17,6 +17,9 @@ return { -- Highlight, edit, and navigate code
     },
     indent = { enable = true, disable = { 'ruby' } },
   },
+  vim.keymap.set('n', 'gC', function()
+    require('treesitter-context').go_to_context(vim.v.count1)
+  end, { desc = '[G]o to [C]ontext', silent = true }),
   -- There are additional nvim-treesitter modules that you can use to interact
   -- with nvim-treesitter. You should go explore a few and see what interests you:
   --
