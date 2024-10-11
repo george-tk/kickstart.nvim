@@ -1,6 +1,7 @@
 return {
   'akinsho/bufferline.nvim',
   version = '*',
+  event = { 'BufReadPost', 'BufWritePost', 'BufNewFile' },
   dependencies = 'nvim-tree/nvim-web-devicons',
   opts = { options = {
     numbers = 'ordinal',
