@@ -3,9 +3,12 @@ return {
   version = '*',
   event = { 'BufReadPost', 'BufWritePost', 'BufNewFile' },
   dependencies = 'nvim-tree/nvim-web-devicons',
-  opts = { options = {
-    numbers = 'ordinal',
-  } },
+  opts = {
+    options = {
+      numbers = 'ordinal',
+      buffer_close_icon = false,
+    },
+  },
   vim.keymap.set('n', '<leader>bb', function()
     return vim.cmd('BufferLineGoToBuffer' .. vim.v.count1)
   end, { desc = 'go to buffer' }),

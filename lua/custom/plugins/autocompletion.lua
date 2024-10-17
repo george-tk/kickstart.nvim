@@ -102,7 +102,7 @@ return { -- Autocompletion
         { name = 'buffer' },
         { name = 'path' },
       },
-      formatting = { format = lspkind.cmp_format { mode = 'symbol', menu = {}, maxwidth = 15, ellipsis_char = '...' } },
+      formatting = { format = lspkind.cmp_format { mode = 'symbol', menu = {}, maxwidth = 20, ellipsis_char = '...' } },
     }
     cmp.setup.cmdline('/', {
       mapping = cmp.mapping.preset.cmdline(),
