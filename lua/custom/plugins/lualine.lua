@@ -20,6 +20,6 @@ return {
         return vim.cmd('LualineBuffersJump' .. vim.v.count1)
     end, { desc = 'go to buffer' }),
     vim.keymap.set('n', '<leader>bn',':bn<CR>' ,{ desc = '[B]uffer [N]ext' }),
-    vim.keymap.set('n', '<leader>bn',':bp<CR>' ,{ desc = '[B]uffer [P]revious' }),
+    vim.keymap.set('n', '<leader>bp',':bp<CR>' ,{ desc = '[B]uffer [P]revious' }),
     vim.keymap.set('n', '<leader>bd', ':bd<CR>', { desc = ' [B]uffer [D]elete ' }),
 }
