@@ -15,7 +15,7 @@ return {
       local color4_bg = "#585c89"
       local color5_bg = "#0f857c"
       local color6_bg = "#396592"
-      local color_fg = "#0D1116"
+      local color_fg = "#ffffff"
 
       -- Heading colors (when not hovered over), extends through the entire line
       vim.cmd(string.format([[highlight Headline1Bg guifg=%s guibg=%s]], color_fg, color1_bg))
