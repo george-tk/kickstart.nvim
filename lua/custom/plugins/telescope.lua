@@ -19,9 +19,9 @@ return { -- Fuzzy Finder (files, lsp, etc)
     },
     { 'nvim-telescope/telescope-ui-select.nvim' },
     { 'princejoogie/dir-telescope.nvim' },
-    { 'PhilippFeO/telescope-filelinks.nvim', ft = 'markdown' },
+    { 'PhilippFeO/telescope-filelinks.nvim',    ft = 'markdown' },
     -- Useful for getting pretty icons, but requires a Nerd Font.
-    { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+    { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
   },
   config = function()
     -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -97,24 +97,25 @@ return { -- Fuzzy Finder (files, lsp, etc)
     --vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
     vim.keymap.set('n', '<leader>fr', builtin.resume, { desc = '[F]ind [R]esume' })
     vim.keymap.set('n', '<leader>f.', builtin.oldfiles, { desc = '[F]ind Recent Files ("." for repeat)' })
-    vim.keymap.set('n', '<leader>bl', builtin.buffers, { desc = '[B]uffer [L]ist' })
-    -- vim.keymap.set('n', '<leader>Ss', builtin.spell_suggest, { desc = '[S]pell [s]uggest' })
+    vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = '[F]ind [B]uffer' })
 
     -- Slightly advanced example of overriding default behavior and theme
-    vim.keymap.set('n', '<leader>fb', function()
+    vim.keymap.set('n', '<leader>fcb', function()
       -- You can pass additional configuration to Telescope to change the theme, layout, etc.
       builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
         winblend = 10,
         previewer = false,
       })
-    end, { desc = '[F]ind [B]uffer' })
+    end, { desc = '[F]ind [C]urrent [B]uffer' })
 
     vim.keymap.set('n', '<leader>ss', function()
       builtin.spell_suggest(require('telescope.themes').get_cursor { winblend = 10, layout_config = { width = 0.15 } })
     end, { desc = '[S]pell [s]uggest' })
 
-    -- It's also possible to pass additional configuration options.
-    --  See `:help telescope.builtin.live_grep()` for information about particular keys
+    vim.keymap.set('n', '<leader>sn', ']s <leader>ss', { desc = '[S]pell [N]ext', remap = true })
+    vim.keymap.set('n', '<leader>sp', '[s <leader>ss', { desc = '[S]pell [P]revious', remap = true })
+
+    --  See `:help telescope.susltin.live_grep()` for information about particular keys
     -- vim.keymap.set('n', '<leader>f/', function()
     --   builtin.live_grep {
     --     grep_open_files = true,

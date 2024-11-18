@@ -33,6 +33,19 @@ External Requirements:
   - If you want to write Golang, you will need `go`
   - etc.
 
+The following commands may help
+
+````bash
+apt-get install ripgrep
+apt install -y curl git
+apt install zig
+apt install gcc
+apt install nodejs
+apt install npm
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
+tar -C /opt -xzf nvim-linux64.tar.gz
+'''
+
 > **NOTE**
 > See [Install Recipes](#Install-Recipes) for additional Windows and Linux specific notes
 > and quick install snippets
@@ -73,7 +86,7 @@ too - it's ignored in the kickstart repo to make maintenance easier, but it's
 
 ```sh
 git clone https://github.com/nvim-lua/kickstart.nvim.git "${XDG_CONFIG_HOME:-$HOME/.config}"/nvim
-```
+````
 
 </details>
 
