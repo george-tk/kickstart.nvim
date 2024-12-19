@@ -42,8 +42,8 @@ return {
     dashboard.section.buttons.val = {
       dashboard.button('f', '󰱼 > File', '<cmd>Telescope find_files<CR>'),
       dashboard.button('w', ' > Word', '<cmd>Telescope live_grep<CR>'),
-      dashboard.button('r', ' > Restore ', '<cmd>SessionLoadLast<CR>'),
-      dashboard.button('l', ' > Load', '<cmd>SessionSelect<CR>'),
+      dashboard.button('r', ' > Restore ', function() require("persistence").load({last = true}) end),
+      dashboard.button('l', ' > Load', function() require("persistence").select() end),
     }
 
     -- Send config to alpha

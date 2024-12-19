@@ -36,6 +36,7 @@ return {
     end,
     opts = {
       anti_conceal = { enabled = false },
+      render_modes = true,
       sign = { enabled = false },
       bullet = {
         enabled = true,
@@ -91,8 +92,8 @@ return {
         MkdnTableNewRowAbove = { 'n', '<leader>mR', { buffer = true, desc = '[M]arkdown [R]ow above' } },
         MkdnTableNewColAfter = { 'n', '<leader>mc', { buffer = true, desc = '[M]arkdown [c]olumn after' } },
         MkdnTableNewColBefore = { 'n', '<leader>mC', { buffer = true, desc = '[M]arkdown [C]olumn befor' } },
-        MkdnFoldSection = false, --{ 'n', '<leader>mf', { buffer = true } },
-        MkdnUnfoldSection = false, --{ 'n', '<leader>mF', { buffer = true } },
+        MkdnFoldSection = { 'n', '<leader>mf', { buffer = true } },
+        MkdnUnfoldSection = { 'n', '<leader>mF', { buffer = true } },
       },
       links = {
         transform_explicit = function(text)
@@ -102,7 +103,8 @@ return {
           text = folder..os.date('%d-%m-%Y_')..text
           return(text)
         end,
-      }
+      },
+
     },
   },
 }
