@@ -82,6 +82,9 @@ vim.opt.spelllang = { 'en_gb' }
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
+-- Set to not include swap files, this can course confusion
+vim.opt.swapfile = false
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 

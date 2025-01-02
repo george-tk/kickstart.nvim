@@ -82,7 +82,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
     pcall(require('telescope').load_extension, 'fzf')
     pcall(require('telescope').load_extension, 'ui-select')
     pcall(require('telescope').load_extension, 'dir')
-    pcall(require('telescope').load_extension 'filelinks')
+    pcall(require('telescope').load_extension, 'filelinks')
 
     -- See `:help telescope.builtin`
     local builtin = require 'telescope.builtin'
@@ -109,7 +109,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
     end, { desc = '[F]ind [C]urrent [B]uffer' })
 
     vim.keymap.set('n', '<leader>ss', function()
-      builtin.spell_suggest(require('telescope.themes').get_cursor { winblend = 10, layout_config = { width = 0.15 } })
+      builtin.spell_suggest(require('telescope.themes').get_cursor { winblend = 10, layout_config = { width = 18 } })
     end, { desc = '[S]pell [s]uggest' })
 
     vim.keymap.set('n', '<leader>sn', ']s <leader>ss', { desc = '[S]pell [N]ext', remap = true })
