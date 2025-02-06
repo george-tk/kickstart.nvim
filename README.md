@@ -42,6 +42,7 @@ apt install zig
 apt install gcc
 apt install nodejs
 apt install npm
+apt install fd-find
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
 tar -C /opt -xzf nvim-linux64.tar.gz
 '''

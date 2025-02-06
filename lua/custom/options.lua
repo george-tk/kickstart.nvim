@@ -19,14 +19,14 @@ vim.schedule(function()
 end)
 
 vim.g.clipboard = {
-  name = "WslClipboard",
+  name = 'WslClipboard',
   copy = {
-    ["+"] = "clip.exe",
-    ["*"] = "clip.exe",
+    ['+'] = 'clip.exe',
+    ['*'] = 'clip.exe',
   },
   paste = {
-    ["+"] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
-    ["*"] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+    ['+'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+    ['*'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
   },
   cache_enabled = 0,
 }
@@ -108,4 +108,14 @@ vim.api.nvim_create_autocmd({ 'BufWritePre' }, {
     vim.fn.mkdir(vim.fn.fnamemodify(file, ':p:h'), 'p')
   end,
 })
-vim.opt.cmdheight=0
+
+vim.opt.cmdheight = 0
+
+-- Folding options
+vim.opt.foldmethod = 'expr'
+vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+vim.opt.foldcolumn = '0'
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 1
+vim.opt.foldnestmax = 2
+vim.opt.foldtext = ''
