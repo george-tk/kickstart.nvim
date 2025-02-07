@@ -35,7 +35,7 @@ External Requirements:
 
 The following commands may help
 
-````bash
+```bash
 apt-get install ripgrep
 apt install -y curl git
 apt install zig
@@ -45,7 +45,7 @@ apt install npm
 apt install fd-find
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz
 tar -C /opt -xzf nvim-linux64.tar.gz
-'''
+```
 
 > **NOTE**
 > See [Install Recipes](#Install-Recipes) for additional Windows and Linux specific notes
@@ -87,7 +87,7 @@ too - it's ignored in the kickstart repo to make maintenance easier, but it's
 
 ```sh
 git clone https://github.com/nvim-lua/kickstart.nvim.git "${XDG_CONFIG_HOME:-$HOME/.config}"/nvim
-````
+```
 
 </details>
 

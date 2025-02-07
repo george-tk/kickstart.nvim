@@ -35,9 +35,7 @@ return {
       vim.cmd(string.format([[highlight Headline6Fg cterm=bold gui=bold guifg=%s]], color6_bg))
     end,
     opts = {
-      anti_conceal = { enabled = false },
       render_modes = true,
-      sign = { enabled = false },
       bullet = {
         enabled = true,
       },
