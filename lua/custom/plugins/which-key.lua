@@ -44,7 +44,7 @@ return { -- Useful plugin to show you pending keybinds.
     spec = {
       { '<leader>b', group = '[B]uffer' },
       { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
-      { '<leader>d', group = '[D]ocument' },
+      { '<leader>d', group = '[D]ebug' },
       { '<leader>r', group = '[R]ename' },
       { '<leader>f', group = '[F]ind' },
       { '<leader>w', group = '[W]orkspace' },
