@@ -40,10 +40,18 @@ return {
       '===================================',
     }
     dashboard.section.buttons.val = {
-      dashboard.button('f', '󰱼 > File', '<cmd>Telescope find_files<CR>'),
-      dashboard.button('w', ' > Word', '<cmd>Telescope live_grep<CR>'),
-      dashboard.button('r', ' > Restore ', function() require("persistence").load({last = true}) end),
-      dashboard.button('l', ' > Load', function() require("persistence").select() end),
+      dashboard.button('f', '󰱼 > File', function()
+        Snacks.picker.files()
+      end),
+      dashboard.button('w', ' > Word', function()
+        Snacks.picker.grep_word()
+      end),
+      dashboard.button('r', ' > Restore ', function()
+        require('persistence').load { last = true }
+      end),
+      dashboard.button('l', ' > Load', function()
+        require('persistence').select()
+      end),
     }
 
     -- Send config to alpha

@@ -13,3 +13,7 @@ vim.keymap.set('n', '<leader>sS', '<cmd>set spell!<CR>', { desc = '[S]et [S]pell
 
 -- autoindent pasted text
 vim.keymap.set('n', 'p', 'p=`]', { desc = 'Indented Paste' })
+
+-- next and previews spelling
+vim.keymap.set('n', '<leader>sn', ']s <leader>ss', { desc = '[S]pell [N]ext', remap = true })
+vim.keymap.set('n', '<leader>sp', '[s <leader>ss', { desc = '[S]pell [P]revious', remap = true })
