@@ -110,8 +110,10 @@ return {
       },
       links = {
         transform_explicit = function(text)
+          text = text:gsub("%S+",function(w)
+            return w:sub(1,1):upper() .. w:sub(2):lower() 
+            end)
           text = text:gsub(' ', '')
-          text = text:lower()
           local folder = 'unorganised/'
           text = folder .. os.date '%d-%m-%Y_' .. text
           return text
@@ -124,9 +126,26 @@ return {
             title = 'link_title',
             date = 'os_date',
           },
-          after = {},
+          after = {
+            filename = function()
+                local text = vim.api.nvim_buf_get_name(0)
+                local pattern = "_([^_]+)%.md$"
+                local name = text:match(pattern)
+
+                local result = ""
+                for i = 1, #name do
+                  local char = name:sub(i,i)
+                  if i>1 and char:match("%u") then
+                    result = result .. " " .. char
+                  else
+                    result = result .. char
+                  end
+                end
+                return result
+            end
+          }
         },
-        template = '# {{ title }}',
+        template = '# {{ filename }}',
       },
     },
   },
