@@ -126,3 +126,11 @@ vim.opt.fillchars = {
   diff = ' ',
   eob = ' ',
 }
+-- Autosave markdown files when leaving buffer
+vim.api.nvim_create_autocmd(
+   "BufLeave",
+   {
+       pattern = "*.md",
+       command = "silent! wall"
+   }
+)

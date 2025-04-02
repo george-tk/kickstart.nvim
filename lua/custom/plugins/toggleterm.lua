@@ -12,7 +12,7 @@ return {
       function()
         return vim.cmd('ToggleTerm' .. vim.v.count1)
       end,
-      desc = '[T]erminal',
+      desc = '[t]erminal',
     },
   },
 }

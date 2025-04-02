@@ -9,17 +9,17 @@ return {
   cmd = 'Neotree',
   keys = {
     {
-      '<leader>ef',
+      '<leader>ed',
       '<cmd>Neotree float reveal toggle<CR> ',
-      desc = '[E]xplore [F]iles',
+      desc = '[d]irectory',
     },
 
     {
-      '<leader>ed',
+      '<leader>ef',
       function()
         require('neo-tree.command').execute { toggle = true, source = 'document_symbols' }
       end,
-      desc = '[E]xplore [D]ocument',
+      desc = '[f]ile',
     },
   },
   opts = {

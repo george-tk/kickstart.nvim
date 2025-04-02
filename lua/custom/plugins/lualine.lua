@@ -18,9 +18,9 @@ return {
 
   vim.keymap.set('n', '<leader>bb', function()
     return vim.cmd('LualineBuffersJump' .. vim.v.count1)
-  end, { desc = 'go to buffer' }),
-  vim.keymap.set('n', '<leader>bn', ':bn<CR>', { desc = '[B]uffer [N]ext' }),
-  vim.keymap.set('n', '<leader>bp', ':bp<CR>', { desc = '[B]uffer [P]revious' }),
-  vim.keymap.set('n', '<leader>bd', ':bd<CR>', { desc = '[B]uffer [D]elete' }),
-  vim.keymap.set('n', '<leader>br', '<C-6>', { desc = '[B]uffer [R]eturn' }),
+  end, { desc = 'go to [b]uffer' }),
+  vim.keymap.set('n', '<leader>bn', ':bn<CR>', { desc = '[n]ext' }),
+  vim.keymap.set('n', '<leader>bp', ':bp<CR>', { desc = '[p]revious' }),
+  vim.keymap.set('n', '<leader>bd', ':bd<CR>', { desc = '[d]elete' }),
+  vim.keymap.set('n', '<leader>br', '<C-6>', { desc = '[r]eturn' }),
 }

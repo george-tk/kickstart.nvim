@@ -23,14 +23,14 @@ return {
       function()
         Snacks.picker.files()
       end,
-      desc = 'find files',
+      desc = 'files',
     },
     {
       '<leader>fb',
       function()
         Snacks.picker.buffers()
       end,
-      desc = 'find buffers',
+      desc = 'buffers',
     },
     {
       '<leader>ss',
@@ -46,93 +46,93 @@ return {
       function()
         Snacks.picker.resume()
       end,
-      desc = 'resume find',
+      desc = 'resume',
     },
     {
       '<leader>fh',
       function()
         Snacks.picker.help()
       end,
-      desc = 'find help',
+      desc = 'help',
     },
     {
       '<leader>fk',
       function()
-        Snacks.picker.keymaps()
+        Snacks.picker.keymaps({layout = {preview = false}})
       end,
-      desc = 'find keymaps',
+      desc = 'keymaps',
     },
     {
       '<leader>fp',
       function()
         Snacks.picker.pickers()
       end,
-      desc = 'find pickers',
+      desc = 'pickers',
     },
     {
       '<leader>fwb',
       function()
         Snacks.picker.lines()
       end,
-      desc = 'find word in current buffer',
+      desc = 'current buffer',
     },
     {
       '<leader>fwB',
       function()
         Snacks.picker.grep_buffers()
       end,
-      desc = 'find work in open Buffers',
+      desc = 'buffers',
     },
     {
-      '<leader>fww',
+      '<leader>fwf',
       function()
         Snacks.picker.grep()
       end,
-      desc = 'find word',
+      desc = 'files',
     },
     {
       '<leader>fcw',
       function()
         Snacks.picker.grep_word()
       end,
-      desc = 'find selected word',
+      desc = 'word',
       mode = { 'n', 'x' },
     },
     {
-      'fcd',
+      '<leader>fcd',
       function()
         Snacks.picker.lsp_definitions()
       end,
-      desc = 'find current Definition',
+      desc = 'definition',
     },
     {
-      'fcD',
+      '<leader>fcD',
       function()
         Snacks.picker.lsp_declarations()
       end,
-      desc = 'find current declaration',
+      desc = 'declaration',
     },
     {
-      'fcr',
+      '<leader>fcr',
       function()
         Snacks.picker.lsp_references()
       end,
       nowait = true,
-      desc = 'find current references',
+      desc = 'references',
     },
     {
-      'fci',
+      '<leader>fci',
       function()
         Snacks.picker.lsp_implementations()
       end,
-      desc = 'find current implimentation',
+      desc = 'implimentation',
     },
     {
-      'fct',
+      '<leader>fct',
       function()
         Snacks.picker.lsp_type_definitions()
       end,
-      desc = 'find current type',
+      desc = 'type',
     },
   },
 }
