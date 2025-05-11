@@ -84,39 +84,12 @@ vim.g.have_nerd_font = true
 -- Set to not include swap files, this can course confusion
 vim.opt.swapfile = false
 
--- [[ Basic Autocommands ]]
---  See `:help lua-guide-autocommands`
-
--- Highlight when yanking (copying) text
-vim.api.nvim_create_autocmd('TextYankPost', {
-  desc = 'Highlight when yanking (copying) text',
-  group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
-  callback = function()
-    vim.highlight.on_yank()
-  end,
-})
-
--- Auto create dir when saving a file, in case some intermediate directory does not exist
-vim.api.nvim_create_autocmd({ 'BufWritePre' }, {
-  desc = 'Auto Create Directories',
-  group = vim.api.nvim_create_augroup('kickstart-autocreate', { clear = true }),
-  callback = function(event)
-    if event.match:match '^%w%w+:[\\/][\\/]' then
-      return
-    end
-    local file = vim.uv.fs_realpath(event.match) or event.match
-    vim.fn.mkdir(vim.fn.fnamemodify(file, ':p:h'), 'p')
-  end,
-})
-
 vim.opt.cmdheight = 0
 
 -- Folding options
 vim.opt.foldmethod = 'expr'
 vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 vim.opt.foldlevel = 99
---vim.opt.foldlevelstart = 1
---vim.opt.foldnestmax = 3
 vim.opt.foldtext = ''
 vim.opt.fillchars = {
   foldopen = '',
@@ -126,11 +99,3 @@ vim.opt.fillchars = {
   diff = ' ',
   eob = ' ',
 }
--- Autosave markdown files when leaving buffer
-vim.api.nvim_create_autocmd(
-   "BufLeave",
-   {
-       pattern = "*.md",
-       command = "silent! wall"
-   }
-)

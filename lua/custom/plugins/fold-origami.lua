@@ -1,5 +1,7 @@
 return {
   'chrisgrieser/nvim-origami',
   event = 'VeryLazy',
-  opts = { keepFoldsAcrossSessions = false }, -- needed even when using default config
+  opts = { keepFoldsAcrossSessions = false, foldtextWithLineCount = {
+    enabled = false,
+  } },
 }
