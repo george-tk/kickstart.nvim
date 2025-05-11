@@ -58,7 +58,7 @@ return {
     {
       '<leader>fk',
       function()
-        Snacks.picker.keymaps({layout = {preview = false}})
+        Snacks.picker.keymaps { layout = { preview = false } }
       end,
       desc = 'keymaps',
     },
@@ -84,11 +84,11 @@ return {
       desc = 'buffers',
     },
     {
-      '<leader>fwf',
+      '<leader>fwd',
       function()
         Snacks.picker.grep()
       end,
-      desc = 'files',
+      desc = 'directory',
     },
     {
       '<leader>fcw',
