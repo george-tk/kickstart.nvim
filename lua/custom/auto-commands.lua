@@ -137,10 +137,21 @@ vim.api.nvim_create_autocmd({ 'BufWritePre' }, {
   end,
 })
 
--- Autosave markdown files when leaving buffer
-vim.api.nvim_create_autocmd('BufLeave', {
+local mdAutosaveGrp = vim.api.nvim_create_augroup('MdAutosave', { clear = true })
+
+-- Example: Save on leaving Insert mode AND when leaving the buffer
+vim.api.nvim_create_autocmd('InsertLeave', {
+  group = mdAutosaveGrp,
   pattern = '*.md',
-  command = 'silent! wall',
+  command = 'silent! w',
+  desc = 'Autosave markdown file when leaving Insert mode',
+})
+
+vim.api.nvim_create_autocmd('BufLeave', {
+  group = mdAutosaveGrp,
+  pattern = '*.md',
+  command = 'silent! w', -- Changed from 'wall' to 'w' for consistency
+  desc = 'Autosave markdown file when leaving the buffer',
 })
 function _G.markdown_foldexpr()
   local lnum = vim.v.lnum
