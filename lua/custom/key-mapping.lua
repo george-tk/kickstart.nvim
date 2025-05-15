@@ -12,7 +12,7 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 vim.keymap.set('n', '<leader>sS', '<cmd>set spell!<CR>', { desc = '[S]et [S]pell' })
 
 -- autoindent pasted text
-vim.keymap.set('n', 'p', 'p=`]', { desc = 'Indented Paste' })
+-- vim.keymap.set('n', 'p', 'p=`]', { desc = 'Indented Paste' })
 
 -- next and previews spelling
 vim.keymap.set('n', '<leader>sn', ']s <leader>ss', { desc = '[S]pell [N]ext', remap = true })

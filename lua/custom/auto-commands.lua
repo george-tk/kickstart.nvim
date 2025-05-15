@@ -243,6 +243,10 @@ api.nvim_create_autocmd('FileType', {
     -- IMPORTANT: Adjust 'user.auto-commands' if your require path is different.
     opt_local.foldexpr = "v:lua.require('custom.auto-commands').markdown_foldexpr()"
     opt_local.fillchars:append { eob = ' ' }
+    opt_local.tabstop = 2
+    opt_local.shiftwidth = 2
+    opt_local.expandtab = true
+    opt_local.softtabstop = 2
 
     cmd 'normal! zM'
     cmd 'normal! zr'
