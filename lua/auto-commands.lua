@@ -254,7 +254,7 @@ api.nvim_create_autocmd('FileType', {
   pattern = 'markdown',
   group = augroups.user_markdown_folding,
   callback = function(args)
-    opt_local.foldexpr = "v:lua.require('custom.auto-commands').markdown_foldexpr()"
+    opt_local.foldexpr = "v:lua.require('auto-commands').markdown_foldexpr()"
     opt_local.fillchars:append { eob = ' ' } -- Ensure end-of-buffer char is space
 
     cmd 'normal! zM' -- Close all folds initially

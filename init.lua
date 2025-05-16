@@ -2,13 +2,13 @@ if vim.g.vscode then
   vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 else
   -- Remap Keys
-  require 'custom.key-mapping'
+  require 'key-mapping'
   -- Core Options
-  require 'custom.options'
+  require 'options'
   -- Plugins
-  require 'custom.lazy'
+  require 'plugin-loader'
   -- Health Check
-  require 'custom.health'
+  require 'health'
   -- Auto Commands
-  require 'custom.auto-commands'
+  require 'auto-commands'
 end

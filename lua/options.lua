@@ -14,7 +14,7 @@ o.mouse = 'a' -- Mouse support
 o.showmode = false -- Hide mode messages
 o.cmdheight = 0 -- Command line height
 o.pumheight = 10 -- Completion menu height
-
+o.clipboard = 'unnamedplus' -- Allow for copy and pasting
 ---
 -- Indentation
 -------------------------------------------------------------------------------
