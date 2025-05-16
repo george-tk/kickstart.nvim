@@ -1,22 +1,18 @@
 -- auto-commands.lua
--- Purpose: Autocommands and related functions for Neovim,
--- focusing on Markdown note-taking enhancements.
+-- Autocommands and functions for Neovim, focused on Markdown notes.
 
 local M = {}
 
--- Lua module aliases for brevity and direct access
+-- Aliases for Neovim APIs
 local api = vim.api
 local fn = vim.fn
 local cmd = vim.cmd
-local bo = vim.bo -- Buffer-local options: vim.bo[bufnr]
-local wo = vim.wo -- Window-local options: vim.wo[winnr]
-local opt_local = vim.opt_local -- For setting buffer/window local options directly
-local uv = vim.uv -- Access to libuv functions
+local bo = vim.bo -- Buffer-local options
+local wo = vim.wo -- Window-local options
+local opt_local = vim.opt_local -- Local options setter
+local uv = vim.uv -- libuv functions
 
---- Helper for consistent notifications
--- @param msg string: The message to display
--- @param level (optional) vim.log.levels: Severity level (e.g., INFO, WARN, ERROR)
--- @param opts (optional) table: Additional options for vim.notify
+-- Simple notification helper
 local function notify(msg, level, opts)
   vim.notify(msg, level or vim.log.levels.INFO, opts or {})
 end
@@ -25,59 +21,50 @@ end
 local Path_module
 local snacks_module
 
---- Lazily loads and returns the plenary.path module.
--- @return table|nil: The Path module or nil if loading failed.
+-- Get plenary.path module (lazy load)
 local function get_Path()
   if Path_module then
     return Path_module
   end
   local ok, Path = pcall(require, 'plenary.path')
   if not ok or not Path or not Path.new then
-    notify("plenary.nvim Path module not available. Please ensure it's installed and loaded.", vim.log.levels.ERROR)
+    notify('plenary.nvim Path module not available.', vim.log.levels.ERROR)
     return nil
   end
   Path_module = Path
   return Path_module
 end
 
---- Lazily loads and returns the snacks.nvim module.
--- @return table|nil: The snacks module or nil if loading failed.
+-- Get snacks.nvim module (lazy load)
 local function get_snacks()
   if snacks_module then
     return snacks_module
   end
   local ok, snacks = pcall(require, 'snacks')
   if not ok or not snacks or not snacks.picker or not snacks.picker.files then
-    notify("snacks.nvim file picker not available. Please ensure it's installed and loaded.", vim.log.levels.ERROR)
+    notify('snacks.nvim file picker not available.', vim.log.levels.ERROR)
     return nil
   end
   snacks_module = snacks
   return snacks_module
 end
 
---- Function to robustly close a picker window.
--- @param picker table: The picker object, expected to have a `close` method.
+-- Robustly close a picker window
 local function close_picker_robustly(picker)
-  if picker and picker.close and type(picker.close) == 'function' then
-    local close_ok, close_err = pcall(function()
-      picker:close()
-    end)
-    if not close_ok then
-      notify('Error closing picker with its method: ' .. tostring(close_err), vim.log.levels.WARN)
-      pcall(cmd.pclose) -- Fallback: Close preview window if picker's close fails
-    end
+  if picker and type(picker.close) == 'function' then
+    pcall(picker.close, picker) -- Use pcall with self argument
   else
-    pcall(cmd.pclose) -- Fallback: Close preview window if picker.close is not available
+    pcall(cmd.pclose) -- Fallback
   end
 end
 
---- Creates a relative Markdown link from a file selected using snacks.nvim.
+--- Create a relative Markdown link from a file selected via snacks.nvim
 function M.create_markdown_link_from_snack()
   local current_buf_nr = api.nvim_get_current_buf()
   local current_buf_path_str = api.nvim_buf_get_name(current_buf_nr)
 
   if not current_buf_path_str or current_buf_path_str == '' then
-    notify('Current buffer has no path. Cannot create relative link.', vim.log.levels.WARN)
+    notify('Current buffer has no path.', vim.log.levels.WARN)
     return
   end
 
@@ -87,16 +74,12 @@ function M.create_markdown_link_from_snack()
   local current_buf_dir_str = fn.fnamemodify(current_buf_path_str, ':p:h')
   if not current_buf_dir_str or current_buf_dir_str == '' or current_buf_dir_str == '.' then
     current_buf_dir_str = fn.getcwd()
-    notify('Could not reliably determine current buffer directory. Using CWD (' .. current_buf_dir_str .. ') for relative path.', vim.log.levels.WARN)
+    notify('Using CWD for relative path: ' .. current_buf_dir_str, vim.log.levels.WARN)
   end
 
   local snacks = get_snacks()
-  if not snacks then
-    return
-  end
-
   local Path = get_Path()
-  if not Path then
+  if not snacks or not Path then
     return
   end
 
@@ -104,16 +87,13 @@ function M.create_markdown_link_from_snack()
     prompt = 'Select file to link: ',
     confirm = function(picker, _)
       local selected_items = picker:selected { fallback = true }
-
       if not selected_items or #selected_items == 0 then
-        notify('No file selected from picker.', vim.log.levels.INFO)
+        notify('No file selected.', vim.log.levels.INFO)
         close_picker_robustly(picker)
         return
       end
 
-      local selected_item = selected_items[1]
-      local picked_file_path_str = selected_item.text or selected_item.value
-
+      local picked_file_path_str = selected_items[1].text or selected_items[1].value
       if not picked_file_path_str or picked_file_path_str == '' then
         notify('Failed to get path from selected item.', vim.log.levels.ERROR)
         close_picker_robustly(picker)
@@ -127,20 +107,19 @@ function M.create_markdown_link_from_snack()
       local abs_current_buf_dir = p_current_dir:absolute()
 
       local relative_path_str = Path:new(abs_picked_file_path):make_relative(abs_current_buf_dir)
-      relative_path_str = fn.substitute(relative_path_str, ' ', '%20', 'g')
+      relative_path_str = fn.substitute(relative_path_str, ' ', '%20', 'g') -- Escape spaces
 
       local link_text = fn.fnamemodify(picked_file_path_str, ':t')
-      link_text = link_text:gsub('%.md$', ''):gsub('%.markdown$', '')
+      link_text = link_text:gsub('%.md$', ''):gsub('%.markdown$', '') -- Remove markdown extensions
 
       local markdown_link = string.format('[%s](%s)', link_text, relative_path_str)
 
+      -- Restore original window and insert text
       if api.nvim_get_current_win() ~= original_win_id then
         api.nvim_set_current_win(original_win_id)
       end
-
       local insert_row = original_cursor_pos[1] - 1
       local insert_col = original_cursor_pos[2]
-
       api.nvim_buf_set_text(current_buf_nr, insert_row, insert_col, insert_row, insert_col, { markdown_link })
       api.nvim_win_set_cursor(original_win_id, { original_cursor_pos[1], original_cursor_pos[2] + #markdown_link })
 
@@ -154,14 +133,16 @@ function M.create_markdown_link_from_snack()
   }
 end
 
+-- User Command and Keymap for creating Markdown links
 api.nvim_create_user_command('CreateSnackMarkdownLink', function()
   M.create_markdown_link_from_snack()
-end, {
-  desc = 'Pick a file with snacks.nvim and insert a relative markdown link.',
-})
+end, { desc = 'Pick file and insert relative markdown link' })
 
 vim.keymap.set('n', '<leader>mf', '<cmd>CreateSnackMarkdownLink<CR>', { desc = '[f]ind link' })
 
+---
+-- Autocommand Groups
+-------------------------------------------------------------------------------
 local augroups = {
   user_highlight_yank = api.nvim_create_augroup('UserHighlightYank', { clear = true }),
   user_auto_create_dir = api.nvim_create_augroup('UserAutoCreateDir', { clear = true }),
@@ -170,18 +151,24 @@ local augroups = {
   user_render_markdown_fixes = api.nvim_create_augroup('UserRenderMarkdownFixes', { clear = true }),
 }
 
+---
+-- General Autocommands
+-------------------------------------------------------------------------------
+-- Highlight yanked text
 api.nvim_create_autocmd('TextYankPost', {
-  desc = 'Highlight yanked text briefly',
+  desc = 'Highlight yanked text',
   group = augroups.user_highlight_yank,
   callback = function()
-    vim.hl.on_yank()
+    vim.highlight.on_yank() -- Use vim.highlight.on_yank
   end,
 })
 
+-- Auto create parent directories on save
 api.nvim_create_autocmd('BufWritePre', {
-  desc = 'Auto create parent directories on save',
+  desc = 'Auto create parent directories',
   group = augroups.user_auto_create_dir,
   callback = function(event)
+    -- Skip non-file protocols
     if event.match:match '^%w%w+:[\\/][\\/]' then
       return
     end
@@ -190,70 +177,93 @@ api.nvim_create_autocmd('BufWritePre', {
   end,
 })
 
+---
+-- Markdown Specific Autocommands & Functions
+-------------------------------------------------------------------------------
+
+-- Callback to format and save markdown files
+local function autosave_and_format_markdown(args)
+  local ok, conform = pcall(require, 'conform')
+  if ok then
+    conform.format { bufnr = args.buf }
+  end
+  cmd 'silent! write' -- Save the buffer
+end
+
+-- Autosave & format markdown on leaving Insert mode
 api.nvim_create_autocmd('InsertLeave', {
   group = augroups.user_markdown_autosave,
   pattern = '*.md,*.markdown',
-  command = 'silent! write',
-  desc = 'Autosave *.md, *.markdown on leaving Insert mode',
+  callback = autosave_and_format_markdown,
+  desc = 'Autosave & format *.md, *.markdown on InsertLeave',
 })
 
+-- Autosave & format markdown on leaving buffer
 api.nvim_create_autocmd('BufLeave', {
   group = augroups.user_markdown_autosave,
   pattern = '*.md,*.markdown',
-  command = 'silent! write',
-  desc = 'Autosave *.md, *.markdown on leaving buffer',
+  callback = autosave_and_format_markdown,
+  desc = 'Autosave & format *.md, *.markdown on BufLeave',
 })
 
+-- General BufWritePre autoformatting (for manual saves)
+api.nvim_create_autocmd('BufWritePre', {
+  pattern = '*',
+  callback = function(args)
+    local ok, conform = pcall(require, 'conform')
+    if ok then
+      conform.format { bufnr = args.buf }
+    end
+  end,
+  desc = 'Autoformat on BufWritePre (general)',
+})
+
+-- Markdown specific foldexpr function
 function M.markdown_foldexpr()
   local lnum = vim.v.lnum
   local line = fn.getline(lnum)
 
+  -- Do not fold code blocks
   local syn_name = fn.synIDattr(fn.synID(lnum, 1, 1), 'name')
   if syn_name and (syn_name:match 'markdownCodeBlock' or syn_name:match 'markdownCode') then
     return '='
   end
 
+  -- Fold headings
   local heading_match = line:match '^(#+)%s+'
   if heading_match then
     local level = #heading_match
+    -- Handle level 1 headings and potential frontmatter boundary
     if level == 1 then
-      if lnum == 1 then
-        return '>1'
-      else
-        -- Access frontmatter_end as a custom buffer variable via vim.b
-        -- This variable needs to be set by your other configurations or plugins.
-        local fm_end = vim.b.frontmatter_end -- CORRECTED
-        if fm_end and type(fm_end) == 'number' and (lnum == fm_end + 1) then
-          return '>1'
-        end
-        return '>1'
+      local fm_end = vim.b.frontmatter_end -- Assumes this buffer variable is set elsewhere
+      if fm_end and type(fm_end) == 'number' and (lnum == fm_end + 1) then
+        return '>1' -- Start fold after frontmatter
+      elseif lnum == 1 then
+        return '>1' -- Start fold at beginning if no frontmatter marker
       end
+      return '>1' -- Default for other level 1 headings
     elseif level >= 2 and level <= 6 then
-      return '>' .. level
+      return '>' .. level -- Fold levels 2-6
     end
   end
-  return '='
+  return '=' -- No folding
 end
 
+-- FileType markdown setup (folding, options)
 api.nvim_create_autocmd('FileType', {
   pattern = 'markdown',
   group = augroups.user_markdown_folding,
   callback = function(args)
-    opt_local.foldmethod = 'expr'
-    -- IMPORTANT: Adjust 'user.auto-commands' if your require path is different.
     opt_local.foldexpr = "v:lua.require('custom.auto-commands').markdown_foldexpr()"
-    opt_local.fillchars:append { eob = ' ' }
-    opt_local.tabstop = 2
-    opt_local.shiftwidth = 2
-    opt_local.expandtab = true
-    opt_local.softtabstop = 2
+    opt_local.fillchars:append { eob = ' ' } -- Ensure end-of-buffer char is space
 
-    cmd 'normal! zM'
-    cmd 'normal! zr'
+    cmd 'normal! zM' -- Close all folds initially
+    cmd 'normal! zr' -- Open one level of folds
   end,
-  desc = 'Setup Markdown folding and other local options',
+  desc = 'Setup Markdown folding and local options',
 })
 
+-- Ensure render-markdown re-activates on buffer enter for Markdown
 api.nvim_create_autocmd('BufEnter', {
   group = augroups.user_render_markdown_fixes,
   pattern = { '*.md', '*.markdown' },
@@ -270,34 +280,33 @@ api.nvim_create_autocmd('BufEnter', {
 
       local ft = bo[args.buf].filetype
       if ft == 'markdown' or ft == '' then
-        local enable_ok, enable_err = pcall(rm.buf_enable, args.buf)
-        if not enable_ok then
-          notify('Failed to enable render-markdown for buffer ' .. args.buf .. ': ' .. tostring(enable_err), vim.log.levels.WARN)
-        end
+        pcall(rm.buf_enable, args.buf) -- Attempt to enable render-markdown
       end
     end)
   end,
-  desc = 'Ensure render-markdown re-activates on buffer enter for Markdown files',
+  desc = 'Ensure render-markdown is active on BufEnter for Markdown',
 })
 
+-- Function to choose fold level via <leader>F
 function M.choose_fold_level(level_to_apply)
   local current_foldmethod = wo[0].foldmethod
   if not (current_foldmethod == 'expr' or current_foldmethod == 'manual' or current_foldmethod == 'syntax') then
-    notify("Current foldmethod ('" .. current_foldmethod .. "') does not support level-based folding with zr/zM.", vim.log.levels.WARN)
+    notify("Current foldmethod ('" .. current_foldmethod .. "') does not support level-based folding.", vim.log.levels.WARN)
     return
   end
 
   if level_to_apply <= 0 then
-    cmd 'normal! zM'
+    cmd 'normal! zM' -- Close all folds
     notify('All folds closed.', vim.log.levels.INFO, { title = 'Folding' })
   else
-    cmd 'normal! zM'
-    cmd('normal! ' .. level_to_apply .. 'zr')
+    cmd 'normal! zM' -- Close all first
+    cmd('normal! ' .. level_to_apply .. 'zr') -- Then open to specified level
   end
 end
 
+-- Keymap for choosing fold level
 vim.keymap.set('n', '<leader>F', function()
-  M.choose_fold_level(vim.v.count1)
+  M.choose_fold_level(vim.v.count1) -- Use count (e.g., 2<leader>F for level 2)
 end, { desc = '[f]old level' })
 
 return M
