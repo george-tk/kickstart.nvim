@@ -1,14 +1,13 @@
-return { -- Autocompletion
+-- Autocompletion (nvim-cmp)
+
+return {
   'hrsh7th/nvim-cmp',
-  event = { 'InsertEnter', 'CmdLineEnter' },
+  event = { 'InsertEnter', 'CmdLineEnter' }, -- Load on Insert/CmdLine
   dependencies = {
-    -- Snippet Engine & its associated nvim-cmp source
+    -- Snippets
     {
       'L3MON4D3/LuaSnip',
-      build = (function()
-        -- Build Step is needed for regex support in snippets.
-        -- This step is not supported in many windows environments.
-        -- Remove the below condition to re-enable on windows.
+      build = (function() -- Build for regex support
         if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
           return
         end
@@ -19,44 +18,36 @@ return { -- Autocompletion
           'rafamadriz/friendly-snippets',
           config = function()
             require('luasnip.loaders.from_vscode').lazy_load()
-          end,
+          end, -- Load snippets
         },
       },
     },
-    'saadparwaiz1/cmp_luasnip',
+    'saadparwaiz1/cmp_luasnip', -- LuaSnip source
 
-    -- Adds other completion capabilities.
-    'hrsh7th/cmp-nvim-lsp',
-    'hrsh7th/cmp-path',
-    'hrsh7th/cmp-buffer',
+    -- Sources
+    'hrsh7th/cmp-nvim-lsp', -- LSP source
+    'hrsh7th/cmp-path', -- Path source
+    'hrsh7th/cmp-buffer', -- Buffer source
+    'hrsh7th/cmp-cmdline', -- Cmdline source
+    'octaltree/cmp-look', -- Dictionary source
+
+    -- Icons
     'onsails/lspkind.nvim',
-    'hrsh7th/cmp-cmdline',
-    'octaltree/cmp-look',
   },
   config = function()
     local cmp = require 'cmp'
     local luasnip = require 'luasnip'
     local lspkind = require 'lspkind'
-    -- local cmp_dictionary = require 'cmp_dictionary' -- Not strictly needed to pre-require if using its setup function directly
-
-    require('luasnip.loaders.from_vscode').lazy_load()
-
-    -- Configure cmp-dictionary <<< ADDED SECTION
-    -- IMPORTANT: Replace '/usr/share/dict/words' with the actual path to your dictionary file.
-    -- Common paths:
-    -- Linux: /usr/share/dict/words
-    -- macOS: /usr/share/dict/words (usually present)
-    -- Windows: You'll need to find or create a dictionary file (e.g., a plain text file with one word per line).
 
     cmp.setup {
       snippet = {
         expand = function(args)
           luasnip.lsp_expand(args.body)
         end,
-      },
-      completion = { completeopt = 'menu,menuone,noinsert,noselect' },
+      }, -- Snippet expansion
+      completion = { completeopt = 'menu,menuone,noinsert,noselect' }, -- Completion behavior
       mapping = {
-        ['<CR>'] = cmp.mapping {
+        ['<CR>'] = cmp.mapping { -- Accept
           i = function(fallback)
             if cmp.visible() and cmp.get_active_entry() then
               cmp.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false }
@@ -67,7 +58,7 @@ return { -- Autocompletion
           s = cmp.mapping.confirm { select = true },
           c = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false },
         },
-        ['<Tab>'] = cmp.mapping(function(fallback)
+        ['<Tab>'] = cmp.mapping(function(fallback) -- Next item / Snippet jump forward
           if cmp.visible() then
             cmp.select_next_item()
           elseif luasnip.locally_jumpable(1) then
@@ -76,7 +67,7 @@ return { -- Autocompletion
             fallback()
           end
         end, { 'i', 's' }),
-        ['<S-Tab>'] = cmp.mapping(function(fallback)
+        ['<S-Tab>'] = cmp.mapping(function(fallback) -- Prev item / Snippet jump backward
           if cmp.visible() then
             cmp.select_prev_item()
           elseif luasnip.locally_jumpable(-1) then
@@ -85,50 +76,41 @@ return { -- Autocompletion
             fallback()
           end
         end, { 'i', 's' }),
-        ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-        ['<C-f>'] = cmp.mapping.scroll_docs(4),
-        ['<C-Space>'] = cmp.mapping.complete(),
+        ['<C-b>'] = cmp.mapping.scroll_docs(-4), -- Scroll docs up
+        ['<C-f>'] = cmp.mapping.scroll_docs(4), -- Scroll docs down
+        ['<C-Space>'] = cmp.mapping.complete(), -- Manually trigger
       },
-      sources = { -- These are your global sources
-        {
-          name = 'lazydev',
-          group_index = 0,
-        },
+      sources = { -- Global sources
+        { name = 'lazydev', group_index = 0 },
         { name = 'nvim_lsp' },
         { name = 'luasnip' },
         { name = 'buffer' },
         { name = 'path' },
       },
-      formatting = { format = lspkind.cmp_format { mode = 'symbol', menu = {}, maxwidth = 20, ellipsis_char = '...' } },
+      formatting = { format = lspkind.cmp_format { mode = 'symbol', menu = {}, maxwidth = 50, ellipsis_char = '...' } }, -- Formatting
     }
 
-    -- Command line settings (unchanged from your original)
+    -- Cmdline setup (/)
     cmp.setup.cmdline('/', {
       mapping = cmp.mapping.preset.cmdline(),
-      sources = {
-        { name = 'buffer' },
-      },
+      sources = { { name = 'buffer' } },
     })
 
+    -- Cmdline setup (:)
     cmp.setup.cmdline(':', {
       mapping = cmp.mapping.preset.cmdline(),
-      sources = cmp.config.sources({
-        { name = 'path' },
-      }, {
-        { name = 'cmdline' },
-      }),
+      sources = cmp.config.sources({ { name = 'path' } }, { { name = 'cmdline' } }),
       matching = { disallow_symbol_nonprefix_matching = false },
     })
 
-    -- Filetype specific setup for Markdown <<< ADDED SECTION
+    -- Markdown specific setup
     cmp.setup.filetype('markdown', {
-      sources = cmp.config.sources {
-        -- Include your global sources if desired, or define a specific set for markdown
-        { name = 'lazydev', group_index = 0 },
-        { name = 'nvim_lsp' }, -- May or may not be useful in markdown depending on your LSP
+      sources = cmp.config.sources { -- Markdown sources
+        { name = 'nvim_lsp' },
         { name = 'luasnip' },
+        { name = 'buffer' },
         { name = 'path' },
-        { name = 'look', option = { dict = '/home/gkyriacou/.config/nvim/dict/en.txt' } },
+        { name = 'look', option = { dict = '/home/gkyriacou/.config/nvim/dict/en.txt' } }, -- Dictionary source (Update path!)
       },
     })
   end,

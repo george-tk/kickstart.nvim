@@ -23,8 +23,7 @@ o.tabstop = 2 -- Tab width
 o.shiftwidth = 2 -- Indent width
 o.softtabstop = 2 -- Tab key behavior
 o.autoindent = true -- Auto-indent
-o.smartindent = false -- No smartindent
-g.markdown_recommended_style = 0
+
 ---
 -- Editing Enhancements
 -------------------------------------------------------------------------------
@@ -87,29 +86,7 @@ o.fillchars = { -- Fold fill characters
 }
 
 ---
--- WSL Clipboard Configuration
--------------------------------------------------------------------------------
--- Configures clipboard for WSL using `clip.exe` for copy/paste.
--- Consider native integration with WSLg if available.
-vim.schedule(function()
-  o.clipboard = 'unnamedplus' -- Sync with system clipboard
-end)
-
-g.clipboard = {
-  name = 'WslClipboard',
-  copy = { ['+'] = 'clip.exe', ['*'] = 'clip.exe' },
-  paste = {
-    ['+'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
-    ['*'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
-  },
-  cache_enabled = 0, -- Reliability over caching
-}
-
----
 -- Global Flags & Minor Optimizations
 -------------------------------------------------------------------------------
 g.have_nerd_font = true -- Nerd Font flag
-
--- Optional: Disable built-in netrw if using an alternative file explorer
--- g.loaded_netrw = 1
--- g.loaded_netrwPlugin = 1
+g.markdown_recommended_style = 0 -- prevents rewrite of markdown style

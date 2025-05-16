@@ -39,7 +39,7 @@ return { -- Useful plugin to show you pending keybinds.
         F12 = '<F12>',
       },
     },
-    icons = {group = '',mappings=false},
+    icons = { group = '', mappings = false },
     -- Document existing key chains
     spec = {
       { '<leader>b', group = '[b]uffer' },
@@ -50,7 +50,6 @@ return { -- Useful plugin to show you pending keybinds.
       { '<leader>t', group = '[t]erminal' },
       { '<leader>g', group = '[g]it', mode = { 'n', 'v' } },
       { '<leader>e', group = '[e]xplore', mode = { 'n', 'v' } },
-      { '<leader>z', group = '[z]en mode', mode = { 'n', 'v' } },
       { '<leader>m', group = '[m]arkdown' },
       { '<leader>s', group = '[s]pelling' },
       { '<leader>l', group = '[l]sp' },
@@ -66,7 +65,6 @@ return { -- Useful plugin to show you pending keybinds.
       { '<leader>mR', desc = 'create [R]ow above' },
       { '<leader>mc', desc = 'create [c]olumn after' },
       { '<leader>mC', desc = 'create [C]olumn befor' },
-
     },
   },
 }
