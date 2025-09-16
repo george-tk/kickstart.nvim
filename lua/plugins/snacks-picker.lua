@@ -19,6 +19,17 @@ return {
   keys = {
     -- Top Pickers & Explorer
     {
+      '<leader>ft',
+      function()
+        Snacks.picker.grep {
+          search = '^\\s*-\\s\\[( |-)\\]',
+          regex = true,
+          live = false,
+        }
+      end,
+      desc = 'todos',
+    },
+    {
       '<leader>ff',
       function()
         Snacks.picker.files()
