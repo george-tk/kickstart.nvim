@@ -27,12 +27,18 @@ return {
           live = false,
         }
       end,
-      desc = 'todos',
+      desc = 'todos', 
     },
     {
       '<leader>ff',
       function()
-        Snacks.picker.files()
+        Snacks.picker.recent {
+          filter = {
+            paths = {
+              [vim.fn.getcwd()] = true,
+            }
+          }
+        }
       end,
       desc = 'files',
     },
