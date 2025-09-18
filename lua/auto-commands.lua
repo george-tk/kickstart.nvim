@@ -229,11 +229,13 @@ function M.markdown_foldexpr()
     return '='
   end
 
-  -- Fold headings
-  local heading_match = line:match '^(#+)%s+'
+  -- Only fold lines that are markdown headers (start with # and a space followed by text)
+  if line:match('^%s*[-*+>]%s') then
+    return '=' -- Never fold lists or blockquotes
+  end
+  local heading_match = line:match('^(#+)%s.+')
   if heading_match then
     local level = #heading_match
-    -- Handle level 1 headings and potential frontmatter boundary
     if level == 1 then
       local fm_end = vim.b.frontmatter_end -- Assumes this buffer variable is set elsewhere
       if fm_end and type(fm_end) == 'number' and (lnum == fm_end + 1) then
@@ -249,18 +251,38 @@ function M.markdown_foldexpr()
   return '=' -- No folding
 end
 
+-- User command to echo current buffer's foldexpr for verification
+api.nvim_create_user_command('EchoFoldExpr', function()
+  local expr = vim.api.nvim_get_option_value('foldexpr', { scope = 'local' })
+  notify('Current buffer foldexpr: ' .. expr)
+end, { desc = 'Echo current buffer foldexpr' })
+
 -- FileType markdown setup (folding, options)
 api.nvim_create_autocmd('FileType', {
-  pattern = 'markdown',
+  pattern = { 'markdown' },
   group = augroups.user_markdown_folding,
   callback = function(args)
-    opt_local.foldexpr = "v:lua.require('auto-commands').markdown_foldexpr()"
-    opt_local.fillchars:append { eob = ' ' } -- Ensure end-of-buffer char is space
-
-    cmd 'normal! zM' -- Close all folds initially
-    cmd 'normal! zr' -- Open one level of folds
+    vim.api.nvim_buf_set_option(args.buf, 'foldmethod', 'expr')
+    vim.api.nvim_buf_set_option(args.buf, 'foldexpr', "v:lua.require('auto-commands').markdown_foldexpr()")
+    opt_local.fillchars:append { eob = ' ' }
+    cmd 'normal! zM'
+    cmd 'normal! zr'
   end,
   desc = 'Setup Markdown folding and local options',
+})
+
+api.nvim_create_autocmd('BufReadPost', {
+  pattern = { '*.md', '*.markdown' },
+  group = augroups.user_markdown_folding,
+  callback = function(args)
+    vim.api.nvim_buf_set_option(args.buf, 'filetype', 'markdown')
+    vim.api.nvim_buf_set_option(args.buf, 'foldmethod', 'expr')
+    vim.api.nvim_buf_set_option(args.buf, 'foldexpr', "v:lua.require('auto-commands').markdown_foldexpr()")
+    opt_local.fillchars:append { eob = ' ' }
+    cmd 'normal! zM'
+    cmd 'normal! zr'
+  end,
+  desc = 'Force markdown folding for markdown extensions',
 })
 
 -- Ensure render-markdown re-activates on buffer enter for Markdown
