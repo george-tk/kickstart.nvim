@@ -1,26 +1,130 @@
 return {
   'nvim-lualine/lualine.nvim',
-  dependencies = { 'nvim-tree/nvim-web-devicons' },
-  opts = {
-    options = {
-      component_separators = { left = '', right = '' },
-      section_separators = { left = '', right = '' },
-    },
-    sections = {
-      lualine_a = { 'mode' },
-      lualine_b = { 'branch', 'diff' },
-      lualine_c = { { 'buffers', mode = 2, max_length = vim.o.columns * 0.9 } },
-      lualine_x = {},
-      lualine_y = {},
-      lualine_z = {},
-    },
+  event = 'BufWinEnter', -- or 'VeryLazy' if you prefer even later
+  -- Load devicons only if/when lualine renders with icons
+  dependencies = {
+    { 'nvim-tree/nvim-web-devicons', lazy = true },
   },
 
-  vim.keymap.set('n', '<leader>bb', function()
-    return vim.cmd('LualineBuffersJump' .. vim.v.count1)
-  end, { desc = 'go to [b]uffer' }),
-  vim.keymap.set('n', '<leader>bn', ':bn<CR>', { desc = '[n]ext' }),
-  vim.keymap.set('n', '<leader>bp', ':bp<CR>', { desc = '[p]revious' }),
-  vim.keymap.set('n', '<leader>bd', ':bd<CR>', { desc = '[d]elete' }),
-  vim.keymap.set('n', '<leader>br', '<C-6>', { desc = '[r]eturn' }),
+  -- Define keymaps without forcing plugin to load
+  init = function()
+    vim.keymap.set('n', '<leader>bb', function()
+      -- Jump to buffer #N using count
+      return vim.cmd('LualineBuffersJump ' .. vim.v.count1)
+    end, { desc = 'go to [b]uffer' })
+
+    vim.keymap.set('n', '<leader>bn', ':bn<CR>', { desc = '[n]ext' })
+    vim.keymap.set('n', '<leader>bp', ':bp<CR>', { desc = '[p]revious' })
+    vim.keymap.set('n', '<leader>bd', ':bd<CR>', { desc = '[d]elete' })
+    vim.keymap.set('n', '<leader>br', '<C-6>', { desc = '[r]eturn' })
+  end,
+
+  opts = function()
+    -- Helpers
+    local function in_git_repo()
+      -- Fast check: only runs when statusline renders
+      local ok, git = pcall(vim.b, 'gitsigns_head')
+      -- If gitsigns has attached it sets b:gitsigns_head; fallback to checking git dir
+      if ok and type(git) == 'string' and git ~= '' then
+        return true
+      end
+      -- fallback (cheap): look for .git from current file
+      local dir = vim.fn.finddir('.git', '.;')
+      return dir ~= ''
+    end
+
+    local function has_multiple_listed_buffers()
+      local count = 0
+      for _, b in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.bo[b].buflisted then
+          count = count + 1
+        end
+        if count > 1 then
+          return true
+        end
+      end
+      return false
+    end
+
+    -- Buffers component options, computed on render
+    local buffers_component = {
+      'buffers',
+      mode = 2, -- 2 = buffer index + filename
+      -- Recompute width at render time so it adapts to current UI width
+      max_length = function()
+        return math.floor(vim.o.columns * 0.85)
+      end,
+      symbols = { alternate_file = '' },
+      cond = has_multiple_listed_buffers, -- hide if only one buffer
+    }
+
+    -- Diff component that defers to gitsigns if available and only in repos
+    local diff_component = {
+      'diff',
+      source = function()
+        local ok, gs = pcall(require, 'gitsigns')
+        if ok and gs.get_hunks then
+          local hunks = gs.get_hunks()
+          if not hunks then
+            return nil
+          end
+          local added, changed, removed = 0, 0, 0
+          for _, h in ipairs(hunks) do
+            if h.type == 'add' then
+              added = added + h.added.count
+            elseif h.type == 'change' then
+              changed = changed + h.added.count + h.removed.count
+            elseif h.type == 'delete' then
+              removed = removed + h.removed.count
+            end
+          end
+          return { added = added, modified = changed, removed = removed }
+        end
+        -- fallback: let lualine run its own lightweight diff (may show 0s)
+        return nil
+      end,
+      cond = in_git_repo,
+      -- Optional: throttle refresh a bit to avoid recomputing too often
+      -- update_in_insert = false, -- default is false; keep it that way for less churn
+    }
+
+    return {
+      options = {
+        component_separators = { left = '', right = '' },
+        section_separators = { left = '', right = '' },
+        -- If you don’t need icons, set to false and delete the devicons dep
+        icons_enabled = true,
+        globalstatus = true,
+        -- Avoid doing work when the UI is tiny
+        disabled_filetypes = {
+          statusline = { 'alpha', 'starter', 'neo-tree', 'TelescopePrompt' },
+        },
+        -- Only enable lualine when terminal has enough columns
+        refresh = {
+          statusline = 500, -- default 1000; lower if you want snappier updates
+        },
+      },
+
+      sections = {
+        lualine_a = { 'mode' },
+        -- Keep branch (light), but only inside repos
+        lualine_b = {
+          { 'branch', cond = in_git_repo },
+          diff_component,
+        },
+        lualine_c = { buffers_component },
+
+        -- Keep the right side empty for now (cheaper to render)
+        lualine_x = {},
+        lualine_y = {},
+        lualine_z = {},
+      },
+
+      -- Don’t render tabline/winbar unless you need them
+      tabline = nil,
+      winbar = nil,
+      inactive_winbar = nil,
+      extensions = { 'quickfix', 'man', 'neo-tree' }, -- load small integrations when those filetypes open
+    }
+  end,
 }

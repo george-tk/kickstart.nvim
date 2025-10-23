@@ -1,13 +1,15 @@
--- Autocompletion (nvim-cmp)
-
+-- Autocompletion (blink.cmp) — tuned for fast startup, same UX (Tab/snippets, cmdline guards)
 return {
-  'hrsh7th/nvim-cmp',
-  event = { 'InsertEnter', 'CmdLineEnter' }, -- Load on Insert/CmdLine
+  'saghen/blink.cmp',
+  version = '1.*', -- prebuilt fuzzy binaries
+  event = { 'InsertEnter', 'CmdlineEnter' }, -- load when you actually use completion
+
   dependencies = {
-    -- Snippets
+    -- Snippets (LuaSnip + friendly-snippets)
     {
       'L3MON4D3/LuaSnip',
-      build = (function() -- Build for regex support
+      version = 'v2.*',
+      build = (function()
         if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
           return
         end
@@ -17,101 +19,166 @@ return {
         {
           'rafamadriz/friendly-snippets',
           config = function()
-            require('luasnip.loaders.from_vscode').lazy_load()
-          end, -- Load snippets
+            -- Lazy-load VSCode snippets; optionally narrow filetypes to cut load further:
+            require('luasnip.loaders.from_vscode').lazy_load {
+              include = { 'lua', 'markdown' },
+            }
+          end,
         },
       },
     },
-    'saadparwaiz1/cmp_luasnip', -- LuaSnip source
 
-    -- Sources
-    'hrsh7th/cmp-nvim-lsp', -- LSP source
-    'hrsh7th/cmp-path', -- Path source
-    'hrsh7th/cmp-buffer', -- Buffer source
-    'hrsh7th/cmp-cmdline', -- Cmdline source
-    'octaltree/cmp-look', -- Dictionary source
+    -- Dictionary source: load only in Markdown to avoid startup cost elsewhere
+    { 'Kaiser-Yang/blink-cmp-dictionary', ft = { 'markdown' }, dependencies = { 'nvim-lua/plenary.nvim' } },
 
-    -- Icons
+    -- lspkind (tiny)
     'onsails/lspkind.nvim',
-  },
-  config = function()
-    local cmp = require 'cmp'
-    local luasnip = require 'luasnip'
-    local lspkind = require 'lspkind'
 
-    cmp.setup {
-      snippet = {
-        expand = function(args)
-          luasnip.lsp_expand(args.body)
-        end,
-      }, -- Snippet expansion
-      completion = { completeopt = 'menu,menuone,noinsert,noselect' }, -- Completion behavior
-      mapping = {
-        ['<CR>'] = cmp.mapping { -- Accept
-          i = function(fallback)
-            if cmp.visible() and cmp.get_active_entry() then
-              cmp.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false }
-            else
-              fallback()
+    -- LazyDev only for Lua (Neovim config/dev typing help)
+    { 'folke/lazydev.nvim', ft = { 'lua' } },
+  },
+
+  opts = function()
+    local dict_path = vim.fn.expand '~/.config/nvim/dict/en.txt'
+
+    ---@type blink.cmp.Config
+    return {
+      -- Snippet engine
+      snippets = { preset = 'luasnip' },
+
+      -- Completion behavior: lighter by default, docs on-demand, same UX
+      completion = {
+        accept = {
+          auto_brackets = { enabled = true }, -- () + cursor inside on accept (functions/methods)
+        },
+        documentation = {
+          auto_show = true, -- open docs when you want (<C-Space> or via keymaps)
+          auto_show_delay_ms = 0,
+          update_delay_ms = 50,
+        },
+        trigger = {
+          -- keep keyword-triggered menu; disable trigger-character churn
+          show_on_keyword = true,
+          show_on_trigger_character = false,
+        },
+        list = {
+          selection = {
+            -- avoids auto-select & preview insertion churn on first item
+            preselect = false,
+            auto_insert = false,
+          },
+        },
+        menu = {
+          draw = {
+            components = {
+              kind_icon = {
+                ellipsis = false,
+                text = function(ctx)
+                  local lspkind = require 'lspkind'
+                  local icon = lspkind.symbolic(ctx.kind, { mode = 'symbol' })
+                  return (icon or '') .. (ctx.icon_gap or ' ')
+                end,
+              },
+              kind = {
+                highlight = function(ctx)
+                  return 'BlinkCmpKind' .. (ctx.kind or '')
+                end,
+              },
+            },
+          },
+        },
+      },
+
+      -- Sources: keep your defaults; load dictionary only for markdown via plugin ft above
+      sources = {
+        default = { 'lsp', 'path', 'snippets', 'buffer' },
+        per_filetype = {
+          lua = { inherit_defaults = true, 'lazydev' },
+          markdown = { inherit_defaults = true, 'dictionary' },
+        },
+        providers = {
+          -- keep LazyDev provider
+          lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+
+          -- dictionary wired to your wordlist
+          dictionary = {
+            name = 'Dict',
+            module = 'blink-cmp-dictionary',
+            min_keyword_length = 3,
+            opts = {
+              dictionary_files = { dict_path },
+            },
+          },
+
+          -- Optional: show buffer items even when LSP is present (can help in args)
+          -- lsp = { fallbacks = {} },
+        },
+      },
+
+      -- Cmdline completion with guarded <CR>: only accept if you explicitly selected an item
+      cmdline = {
+        enabled = true,
+        sources = { 'path', 'cmdline', 'buffer' },
+        completion = {
+          menu = { auto_show = true },
+          list = { selection = { preselect = false } },
+        },
+        keymap = {
+          preset = 'none',
+          ['<CR>'] = {
+            function(cmp)
+              if cmp.is_menu_visible and cmp.get_selected_item then
+                if cmp.is_menu_visible() and cmp.get_selected_item() then
+                  return cmp.accept_and_enter()
+                end
+              end
+            end,
+            'fallback',
+          },
+          ['<Tab>'] = { 'show', 'select_next', 'fallback' },
+          ['<S-Tab>'] = { 'show', 'select_prev', 'fallback' },
+        },
+      },
+
+      -- Insert-mode keymaps: snippet jump first -> select next -> fallback
+      keymap = {
+        preset = 'none',
+
+        -- Show menu and/or docs on demand
+        ['<C-Space>'] = { 'show', 'show_documentation', 'hide_documentation' },
+
+        -- Hide
+        ['<C-e>'] = { 'hide', 'fallback' },
+
+        -- Guarded <CR>: accept only when a selection exists; else newline
+        ['<CR>'] = {
+          function(cmp)
+            if cmp.is_menu_visible and cmp.get_selected_item then
+              if cmp.is_menu_visible() and cmp.get_selected_item() then
+                return cmp.accept()
+              end
             end
           end,
-          s = cmp.mapping.confirm { select = true },
-          c = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = false },
+          'fallback',
         },
-        ['<Tab>'] = cmp.mapping(function(fallback) -- Next item / Snippet jump forward
-          if cmp.visible() then
-            cmp.select_next_item()
-          elseif luasnip.locally_jumpable(1) then
-            luasnip.jump(1)
-          else
-            fallback()
-          end
-        end, { 'i', 's' }),
-        ['<S-Tab>'] = cmp.mapping(function(fallback) -- Prev item / Snippet jump backward
-          if cmp.visible() then
-            cmp.select_prev_item()
-          elseif luasnip.locally_jumpable(-1) then
-            luasnip.jump(-1)
-          else
-            fallback()
-          end
-        end, { 'i', 's' }),
-        ['<C-b>'] = cmp.mapping.scroll_docs(-4), -- Scroll docs up
-        ['<C-f>'] = cmp.mapping.scroll_docs(4), -- Scroll docs down
-        ['<C-Space>'] = cmp.mapping.complete(), -- Manually trigger
+
+        -- Prefer snippet placeholders over menu navigation for Tab
+        ['<Tab>'] = { 'snippet_forward', 'select_next', 'fallback' },
+        ['<S-Tab>'] = { 'snippet_backward', 'select_prev', 'fallback' },
+
+        -- Scroll docs if open
+        ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
+        ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
+
+        -- Signature help toggle (handy inside function calls)
+        ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
       },
-      sources = { -- Global sources
-        { name = 'lazydev', group_index = 0 },
-        { name = 'nvim_lsp' },
-        { name = 'luasnip' },
-        { name = 'buffer' },
-        { name = 'path' },
-      },
-      formatting = { format = lspkind.cmp_format { mode = 'symbol', menu = {}, maxwidth = 50, ellipsis_char = '...' } }, -- Formatting
+
+      -- Signature help (parameter hints) while inside function calls
+      signature = { enabled = true },
+
+      -- Icon spacing/alignment
+      appearance = { nerd_font_variant = 'mono' },
     }
-
-    -- Cmdline setup (/)
-    cmp.setup.cmdline('/', {
-      mapping = cmp.mapping.preset.cmdline(),
-      sources = { { name = 'buffer' } },
-    })
-
-    -- Cmdline setup (:)
-    cmp.setup.cmdline(':', {
-      mapping = cmp.mapping.preset.cmdline(),
-      sources = cmp.config.sources({ { name = 'path' } }, { { name = 'cmdline' } }),
-      matching = { disallow_symbol_nonprefix_matching = false },
-    })
-
-    -- Markdown specific setup
-    cmp.setup.filetype('markdown', {
-      sources = cmp.config.sources { -- Markdown sources
-        { name = 'nvim_lsp' },
-        { name = 'luasnip' },
-        { name = 'buffer' },
-        { name = 'path' },
-        { name = 'look', option = { dict = '/home/gkyriacou/.config/nvim/dict/en.txt' } }, -- Dictionary source (Update path!)
-      },
-    })
   end,
 }
