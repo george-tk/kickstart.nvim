@@ -1,21 +1,31 @@
 return {
-  'folke/tokyonight.nvim',
-  priority = 1000, -- Make sure to load this before all the other start plugins.
+  'catppuccin/nvim',
+  name = 'catppuccin',
+  priority = 1000,
   init = function()
-    -- Load the colorscheme here.
-    -- Like many other themes, this one has different styles, and you could load
-    -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-    vim.cmd.colorscheme 'tokyonight-night'
-
-    -- You can configure highlights by doing something like:
+    vim.cmd.colorscheme 'catppuccin-mocha'
     vim.cmd.hi 'Comment gui=none'
-    vim.cmd.hi 'Folded guibg= none'
+    vim.cmd.hi 'Folded guibg=none'
   end,
   opts = {
-    transparent = true,
+    flavour = 'mocha',
+    transparent_background = true,
+    show_end_of_buffer = false,
     styles = {
-      sidebars = 'transparent',
-      floats = 'transparent',
+      comments = {},
+      conditionals = {},
+    },
+    integrations = {
+      blink_cmp = true,
+      gitsigns = true,
+      mason = true,
+      mini = { enabled = true },
+      native_lsp = { enabled = true },
+      neogit = true,
+      treesitter = true,
+      treesitter_context = true,
+      which_key = true,
+      snacks = true,
     },
   },
 }

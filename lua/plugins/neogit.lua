@@ -3,15 +3,13 @@ return {
   dependencies = {
     'nvim-lua/plenary.nvim', -- required
     'sindrets/diffview.nvim', -- optional - Diff integration
-
-    -- Only one of these is needed.
-    'nvim-telescope/telescope.nvim', -- optional
+    'folke/snacks.nvim',
   },
-  opts = { popup = {
-    kind = 'tab',
-  }, rebase_editor = {
-    kind = 'tab',
-  } },
+  -- opts = { popup = {
+  --   kind = 'tab',
+  -- }, rebase_editor = {
+  --   kind = 'tab',
+  -- } },
   keys = {
     { '<leader>gs', ':Neogit<CR>', desc = '[s]tatus' },
     { '<leader>gc', ':Neogit commit <CR>', desc = '[c]ommit' },

@@ -14,7 +14,6 @@ return {
         },
       },
     },
-    explorer = {},
   },
   keys = {
     -- Top Pickers & Explorer

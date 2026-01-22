@@ -41,7 +41,7 @@ return {
       },
       heading = {
         sign = false,
-        --icons = { "󰎤 ", "󰎧 ", "󰎪 ", "󰎭 ", "󰎱 ", "󰎳 " },
+        --icons = { '󰎤 ', '󰎧 ', '󰎪 ', '󰎭 ', '󰎱 ', '󰎳 ' },
         backgrounds = {
           'Headline1Bg',
           'Headline2Bg',
@@ -58,6 +58,9 @@ return {
           'Headline5Fg',
           'Headline6Fg',
         },
+        width = 'block',
+        left_pad = 0,
+        right_pad = 0,
       },
     },
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons

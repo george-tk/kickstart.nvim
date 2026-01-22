@@ -7,10 +7,10 @@ local M = {}
 local api = vim.api
 local fn = vim.fn
 local cmd = vim.cmd
-local bo = vim.bo -- Buffer-local options
-local wo = vim.wo -- Window-local options
-local opt_local = vim.opt_local -- Local options setter
-local uv = vim.uv -- libuv functions
+local bo = vim.bo
+local wo = vim.wo
+local opt_local = vim.opt_local
+local uv = vim.uv
 
 -- Simple notification helper
 local function notify(msg, level, opts)
@@ -52,9 +52,9 @@ end
 -- Robustly close a picker window
 local function close_picker_robustly(picker)
   if picker and type(picker.close) == 'function' then
-    pcall(picker.close, picker) -- Use pcall with self argument
+    pcall(picker.close, picker)
   else
-    pcall(cmd.pclose) -- Fallback
+    pcall(cmd.pclose)
   end
 end
 
@@ -69,7 +69,7 @@ function M.create_markdown_link_from_snack()
   end
 
   local original_win_id = api.nvim_get_current_win()
-  local original_cursor_pos = api.nvim_win_get_cursor(original_win_id) -- {row, col} (1-idx, 0-idx)
+  local original_cursor_pos = api.nvim_win_get_cursor(original_win_id)
 
   local current_buf_dir_str = fn.fnamemodify(current_buf_path_str, ':p:h')
   if not current_buf_dir_str or current_buf_dir_str == '' or current_buf_dir_str == '.' then
@@ -107,14 +107,13 @@ function M.create_markdown_link_from_snack()
       local abs_current_buf_dir = p_current_dir:absolute()
 
       local relative_path_str = Path:new(abs_picked_file_path):make_relative(abs_current_buf_dir)
-      relative_path_str = fn.substitute(relative_path_str, ' ', '%20', 'g') -- Escape spaces
+      relative_path_str = fn.substitute(relative_path_str, ' ', '%20', 'g')
 
       local link_text = fn.fnamemodify(picked_file_path_str, ':t')
-      link_text = link_text:gsub('%.md$', ''):gsub('%.markdown$', '') -- Remove markdown extensions
+      link_text = link_text:gsub('%.md$', ''):gsub('%.markdown$', '')
 
       local markdown_link = string.format('[%s](%s)', link_text, relative_path_str)
 
-      -- Restore original window and insert text
       if api.nvim_get_current_win() ~= original_win_id then
         api.nvim_set_current_win(original_win_id)
       end
@@ -154,12 +153,13 @@ local augroups = {
 ---
 -- General Autocommands
 -------------------------------------------------------------------------------
+
 -- Highlight yanked text
 api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight yanked text',
   group = augroups.user_highlight_yank,
   callback = function()
-    vim.highlight.on_yank() -- Use vim.highlight.on_yank
+    vim.highlight.on_yank()
   end,
 })
 
@@ -187,7 +187,7 @@ local function autosave_and_format_markdown(args)
   if ok then
     conform.format { bufnr = args.buf }
   end
-  cmd 'silent! write' -- Save the buffer
+  cmd 'silent! write'
 end
 
 -- Autosave & format markdown on leaving Insert mode
@@ -196,14 +196,6 @@ api.nvim_create_autocmd('InsertLeave', {
   pattern = '*.md,*.markdown',
   callback = autosave_and_format_markdown,
   desc = 'Autosave & format *.md, *.markdown on InsertLeave',
-})
-
--- Autosave & format markdown on leaving buffer
-api.nvim_create_autocmd('BufLeave', {
-  group = augroups.user_markdown_autosave,
-  pattern = '*.md,*.markdown',
-  callback = autosave_and_format_markdown,
-  desc = 'Autosave & format *.md, *.markdown on BufLeave',
 })
 
 -- General BufWritePre autoformatting (for manual saves)
@@ -223,41 +215,39 @@ function M.markdown_foldexpr()
   local lnum = vim.v.lnum
   local line = fn.getline(lnum)
 
-  -- Do not fold code blocks
   local syn_name = fn.synIDattr(fn.synID(lnum, 1, 1), 'name')
   if syn_name and (syn_name:match 'markdownCodeBlock' or syn_name:match 'markdownCode') then
     return '='
   end
 
-  -- Only fold lines that are markdown headers (start with # and a space followed by text)
-  if line:match('^%s*[-*+>]%s') then
-    return '=' -- Never fold lists or blockquotes
+  if line:match '^%s*[-*+>]%s' then
+    return '='
   end
-  local heading_match = line:match('^(#+)%s.+')
+  local heading_match = line:match '^(#+)%s.+'
   if heading_match then
     local level = #heading_match
     if level == 1 then
-      local fm_end = vim.b.frontmatter_end -- Assumes this buffer variable is set elsewhere
+      local fm_end = vim.b.frontmatter_end
       if fm_end and type(fm_end) == 'number' and (lnum == fm_end + 1) then
-        return '>1' -- Start fold after frontmatter
+        return '>1'
       elseif lnum == 1 then
-        return '>1' -- Start fold at beginning if no frontmatter marker
+        return '>1'
       end
-      return '>1' -- Default for other level 1 headings
+      return '>1'
     elseif level >= 2 and level <= 6 then
-      return '>' .. level -- Fold levels 2-6
+      return '>' .. level
     end
   end
-  return '=' -- No folding
+  return '='
 end
 
--- User command to echo current buffer's foldexpr for verification
+-- User command to echo current buffer's foldexpr
 api.nvim_create_user_command('EchoFoldExpr', function()
   local expr = vim.api.nvim_get_option_value('foldexpr', { scope = 'local' })
   notify('Current buffer foldexpr: ' .. expr)
 end, { desc = 'Echo current buffer foldexpr' })
 
--- FileType markdown setup (folding, options)
+-- FileType markdown setup
 api.nvim_create_autocmd('FileType', {
   pattern = { 'markdown' },
   group = augroups.user_markdown_folding,
@@ -285,7 +275,7 @@ api.nvim_create_autocmd('BufReadPost', {
   desc = 'Force markdown folding for markdown extensions',
 })
 
--- Ensure render-markdown re-activates on buffer enter for Markdown
+-- Ensure render-markdown re-activates on buffer enter
 api.nvim_create_autocmd('BufEnter', {
   group = augroups.user_render_markdown_fixes,
   pattern = { '*.md', '*.markdown' },
@@ -302,14 +292,14 @@ api.nvim_create_autocmd('BufEnter', {
 
       local ft = bo[args.buf].filetype
       if ft == 'markdown' or ft == '' then
-        pcall(rm.buf_enable, args.buf) -- Attempt to enable render-markdown
+        pcall(rm.buf_enable, args.buf)
       end
     end)
   end,
   desc = 'Ensure render-markdown is active on BufEnter for Markdown',
 })
 
--- Function to choose fold level via <leader>F
+-- Function to choose fold level
 function M.choose_fold_level(level_to_apply)
   local current_foldmethod = wo[0].foldmethod
   if not (current_foldmethod == 'expr' or current_foldmethod == 'manual' or current_foldmethod == 'syntax') then
@@ -318,17 +308,17 @@ function M.choose_fold_level(level_to_apply)
   end
 
   if level_to_apply <= 0 then
-    cmd 'normal! zM' -- Close all folds
+    cmd 'normal! zM'
     notify('All folds closed.', vim.log.levels.INFO, { title = 'Folding' })
   else
-    cmd 'normal! zM' -- Close all first
-    cmd('normal! ' .. level_to_apply .. 'zr') -- Then open to specified level
+    cmd 'normal! zM'
+    cmd('normal! ' .. level_to_apply .. 'zr')
   end
 end
 
 -- Keymap for choosing fold level
 vim.keymap.set('n', '<leader>F', function()
-  M.choose_fold_level(vim.v.count1) -- Use count (e.g., 2<leader>F for level 2)
+  M.choose_fold_level(vim.v.count1)
 end, { desc = '[f]old level' })
 
 return M

@@ -33,19 +33,6 @@ return {
       return dir ~= ''
     end
 
-    local function has_multiple_listed_buffers()
-      local count = 0
-      for _, b in ipairs(vim.api.nvim_list_bufs()) do
-        if vim.bo[b].buflisted then
-          count = count + 1
-        end
-        if count > 1 then
-          return true
-        end
-      end
-      return false
-    end
-
     -- Buffers component options, computed on render
     local buffers_component = {
       'buffers',
@@ -55,7 +42,6 @@ return {
         return math.floor(vim.o.columns * 0.85)
       end,
       symbols = { alternate_file = '' },
-      cond = has_multiple_listed_buffers, -- hide if only one buffer
     }
 
     -- Diff component that defers to gitsigns if available and only in repos
